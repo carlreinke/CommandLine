@@ -1,0 +1,126 @@
+﻿#nullable enable
+abstract Tetractic.CommandLine.CommandParameter.TryAcceptValue(string! text) -> bool
+abstract Tetractic.CommandLine.CommandParameter.Variadic.get -> bool
+override sealed Tetractic.CommandLine.CommandOption<T>.Variadic.get -> bool
+override sealed Tetractic.CommandLine.CommandParameter<T>.Variadic.get -> bool
+override sealed Tetractic.CommandLine.VariadicCommandOption<T>.Variadic.get -> bool
+override sealed Tetractic.CommandLine.VariadicCommandParameter<T>.Variadic.get -> bool
+override Tetractic.CommandLine.CommandOption<T>.Accept() -> void
+override Tetractic.CommandLine.CommandOption<T>.TryAcceptValue(string! text) -> bool
+override Tetractic.CommandLine.CommandParameter<T>.TryAcceptValue(string! text) -> bool
+override Tetractic.CommandLine.VariadicCommandOption<T>.Accept() -> void
+override Tetractic.CommandLine.VariadicCommandOption<T>.TryAcceptValue(string! text) -> bool
+override Tetractic.CommandLine.VariadicCommandParameter<T>.TryAcceptValue(string! text) -> bool
+static Tetractic.CommandLine.CommandHelp.WriteHelp(Tetractic.CommandLine.Command! command, System.IO.TextWriter! writer, bool verbose, int maxWidth = 80) -> void
+static Tetractic.CommandLine.CommandHelp.WriteHelpHint(Tetractic.CommandLine.Command! command, System.IO.TextWriter! writer) -> void
+static Tetractic.CommandLine.CommandOptionExtensions.GetValueOrNull<T>(this Tetractic.CommandLine.CommandOption<T>! option) -> T?
+static Tetractic.CommandLine.CommandParameterExtensions.GetValueOrNull<T>(this Tetractic.CommandLine.CommandParameter<T>! parameter) -> T?
+Tetractic.CommandLine.Command
+Tetractic.CommandLine.Command.AddOption(char? shortName, string? longName, string! description, bool inherited = false) -> Tetractic.CommandLine.CommandOption!
+Tetractic.CommandLine.Command.AddOption(char? shortName, string? longName, string! parameterName, string! description, bool inherited = false) -> Tetractic.CommandLine.CommandOption<string!>!
+Tetractic.CommandLine.Command.AddOption<T>(char? shortName, string? longName, string! parameterName, string! description, Tetractic.CommandLine.TryParser<T>! parse, bool inherited = false) -> Tetractic.CommandLine.CommandOption<T>!
+Tetractic.CommandLine.Command.AddParameter(string! name, string! description) -> Tetractic.CommandLine.CommandParameter<string!>!
+Tetractic.CommandLine.Command.AddParameter<T>(string! name, string! description, Tetractic.CommandLine.TryParser<T>! parse) -> Tetractic.CommandLine.CommandParameter<T>!
+Tetractic.CommandLine.Command.AddSubcommand(string! name, string! description) -> Tetractic.CommandLine.Command!
+Tetractic.CommandLine.Command.AddVariadicOption(char? shortName, string? longName, string! parameterName, string! description, bool inherited = false) -> Tetractic.CommandLine.VariadicCommandOption<string!>!
+Tetractic.CommandLine.Command.AddVariadicOption<T>(char? shortName, string? longName, string! parameterName, string! description, Tetractic.CommandLine.TryParser<T>! parse, bool inherited = false) -> Tetractic.CommandLine.VariadicCommandOption<T>!
+Tetractic.CommandLine.Command.AddVariadicParameter(string! name, string! description) -> Tetractic.CommandLine.VariadicCommandParameter<string!>!
+Tetractic.CommandLine.Command.AddVariadicParameter<T>(string! name, string! description, Tetractic.CommandLine.TryParser<T>! parse) -> Tetractic.CommandLine.VariadicCommandParameter<T>!
+Tetractic.CommandLine.Command.CommandList
+Tetractic.CommandLine.Command.CommandList.CommandList() -> void
+Tetractic.CommandLine.Command.CommandList.Count.get -> int
+Tetractic.CommandLine.Command.CommandList.GetEnumerator() -> System.Collections.Generic.IEnumerator<Tetractic.CommandLine.Command!>!
+Tetractic.CommandLine.Command.CommandList.this[int index].get -> Tetractic.CommandLine.Command!
+Tetractic.CommandLine.Command.Description.get -> string!
+Tetractic.CommandLine.Command.HelpHandler
+Tetractic.CommandLine.Command.HelpOption.get -> Tetractic.CommandLine.CommandOption?
+Tetractic.CommandLine.Command.HelpOption.set -> void
+Tetractic.CommandLine.Command.HelpVisibility.get -> Tetractic.CommandLine.HelpVisibility
+Tetractic.CommandLine.Command.HelpVisibility.set -> void
+Tetractic.CommandLine.Command.Invoke() -> int
+Tetractic.CommandLine.Command.Name.get -> string!
+Tetractic.CommandLine.Command.OptionList
+Tetractic.CommandLine.Command.OptionList.Count.get -> int
+Tetractic.CommandLine.Command.OptionList.GetEnumerator() -> System.Collections.Generic.IEnumerator<Tetractic.CommandLine.CommandOption!>!
+Tetractic.CommandLine.Command.OptionList.OptionList() -> void
+Tetractic.CommandLine.Command.OptionList.this[int index].get -> Tetractic.CommandLine.CommandOption!
+Tetractic.CommandLine.Command.Options.get -> Tetractic.CommandLine.Command.OptionList
+Tetractic.CommandLine.Command.ParameterList
+Tetractic.CommandLine.Command.ParameterList.Count.get -> int
+Tetractic.CommandLine.Command.ParameterList.GetEnumerator() -> System.Collections.Generic.IEnumerator<Tetractic.CommandLine.CommandParameter!>!
+Tetractic.CommandLine.Command.ParameterList.ParameterList() -> void
+Tetractic.CommandLine.Command.ParameterList.this[int index].get -> Tetractic.CommandLine.CommandParameter!
+Tetractic.CommandLine.Command.Parameters.get -> Tetractic.CommandLine.Command.ParameterList
+Tetractic.CommandLine.Command.Parent.get -> Tetractic.CommandLine.Command?
+Tetractic.CommandLine.Command.SetHelpHandler(Tetractic.CommandLine.Command.HelpHandler! writeHelp) -> void
+Tetractic.CommandLine.Command.SetInvokeHandler(System.Func<int>! invoke) -> void
+Tetractic.CommandLine.Command.SetInvokeHandler(System.Func<System.Threading.Tasks.Task<int>!>! invoke) -> void
+Tetractic.CommandLine.Command.Subcommands.get -> Tetractic.CommandLine.Command.CommandList
+Tetractic.CommandLine.Command.VerboseOption.get -> Tetractic.CommandLine.CommandOption?
+Tetractic.CommandLine.Command.VerboseOption.set -> void
+Tetractic.CommandLine.Command.WriteHelp(bool verbose) -> void
+Tetractic.CommandLine.CommandHelp
+Tetractic.CommandLine.CommandOption
+Tetractic.CommandLine.CommandOption.Count.get -> int
+Tetractic.CommandLine.CommandOption.Description.get -> string!
+Tetractic.CommandLine.CommandOption.HelpVisibility.get -> Tetractic.CommandLine.HelpVisibility
+Tetractic.CommandLine.CommandOption.HelpVisibility.set -> void
+Tetractic.CommandLine.CommandOption.Inherited.get -> bool
+Tetractic.CommandLine.CommandOption.LongName.get -> string?
+Tetractic.CommandLine.CommandOption.Required.get -> bool
+Tetractic.CommandLine.CommandOption.Required.set -> void
+Tetractic.CommandLine.CommandOption.ShortName.get -> char?
+Tetractic.CommandLine.CommandOption<T>
+Tetractic.CommandLine.CommandOption<T>.GetValueOrDefault(T default) -> T
+Tetractic.CommandLine.CommandOption<T>.HasValue.get -> bool
+Tetractic.CommandLine.CommandOption<T>.Value.get -> T
+Tetractic.CommandLine.CommandOption<T>.ValueOrDefault.get -> T
+Tetractic.CommandLine.CommandOptionExtensions
+Tetractic.CommandLine.CommandParameter
+Tetractic.CommandLine.CommandParameter.Count.get -> int
+Tetractic.CommandLine.CommandParameter.Description.get -> string!
+Tetractic.CommandLine.CommandParameter.HelpVisibility.get -> Tetractic.CommandLine.HelpVisibility
+Tetractic.CommandLine.CommandParameter.HelpVisibility.set -> void
+Tetractic.CommandLine.CommandParameter.Name.get -> string!
+Tetractic.CommandLine.CommandParameter.Optional.get -> bool
+Tetractic.CommandLine.CommandParameter.Optional.set -> void
+Tetractic.CommandLine.CommandParameter<T>
+Tetractic.CommandLine.CommandParameter<T>.GetValueOrDefault(T default) -> T
+Tetractic.CommandLine.CommandParameter<T>.HasValue.get -> bool
+Tetractic.CommandLine.CommandParameter<T>.Value.get -> T
+Tetractic.CommandLine.CommandParameter<T>.ValueOrDefault.get -> T
+Tetractic.CommandLine.CommandParameterExtensions
+Tetractic.CommandLine.HelpVisibility
+Tetractic.CommandLine.HelpVisibility.Always = 0 -> Tetractic.CommandLine.HelpVisibility
+Tetractic.CommandLine.HelpVisibility.Never = 2 -> Tetractic.CommandLine.HelpVisibility
+Tetractic.CommandLine.HelpVisibility.Verbose = 1 -> Tetractic.CommandLine.HelpVisibility
+Tetractic.CommandLine.InvalidCommandLineException
+Tetractic.CommandLine.InvalidCommandLineException.Command.get -> Tetractic.CommandLine.Command!
+Tetractic.CommandLine.InvalidCommandLineException.InvalidCommandLineException(Tetractic.CommandLine.Command! command, string? message) -> void
+Tetractic.CommandLine.ParameterizedCommandOption
+Tetractic.CommandLine.ParameterizedCommandOption.ParameterIsOptional.get -> bool
+Tetractic.CommandLine.ParameterizedCommandOption.ParameterName.get -> string!
+Tetractic.CommandLine.ParameterizedCommandOption<T>
+Tetractic.CommandLine.ParameterizedCommandOption<T>.OptionalParameterDefaultValue.get -> T
+Tetractic.CommandLine.ParameterizedCommandOption<T>.SetOptionalParameterDefaultValue(T defaultValue) -> void
+Tetractic.CommandLine.RootCommand
+Tetractic.CommandLine.RootCommand.Execute(string![]! args) -> int
+Tetractic.CommandLine.RootCommand.RootCommand(string! name) -> void
+Tetractic.CommandLine.TryParser<T>
+Tetractic.CommandLine.VariadicCommandOption<T>
+Tetractic.CommandLine.VariadicCommandOption<T>.ValueList
+Tetractic.CommandLine.VariadicCommandOption<T>.ValueList.Count.get -> int
+Tetractic.CommandLine.VariadicCommandOption<T>.ValueList.GetEnumerator() -> System.Collections.Generic.IEnumerator<T>!
+Tetractic.CommandLine.VariadicCommandOption<T>.ValueList.this[int index].get -> T
+Tetractic.CommandLine.VariadicCommandOption<T>.ValueList.ValueList() -> void
+Tetractic.CommandLine.VariadicCommandOption<T>.Values.get -> Tetractic.CommandLine.VariadicCommandOption<T>.ValueList
+Tetractic.CommandLine.VariadicCommandParameter<T>
+Tetractic.CommandLine.VariadicCommandParameter<T>.ValueList
+Tetractic.CommandLine.VariadicCommandParameter<T>.ValueList.Count.get -> int
+Tetractic.CommandLine.VariadicCommandParameter<T>.ValueList.GetEnumerator() -> System.Collections.Generic.IEnumerator<T>!
+Tetractic.CommandLine.VariadicCommandParameter<T>.ValueList.this[int index].get -> T
+Tetractic.CommandLine.VariadicCommandParameter<T>.ValueList.ValueList() -> void
+Tetractic.CommandLine.VariadicCommandParameter<T>.Values.get -> Tetractic.CommandLine.VariadicCommandParameter<T>.ValueList
+virtual Tetractic.CommandLine.CommandOption.Accept() -> void
+virtual Tetractic.CommandLine.CommandOption.TryAcceptValue(string! text) -> bool
+virtual Tetractic.CommandLine.CommandOption.Variadic.get -> bool
