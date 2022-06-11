@@ -139,7 +139,7 @@ namespace Tetractic.CommandLine
         {
             if (name is null)
                 throw new ArgumentNullException(nameof(name));
-            if (name.Length == 0 || name[0] == '-' || ContainsWhitespace(name))
+            if (name.Length == 0 || name[0] == '-' || ContainsWhiteSpace(name))
                 throw new ArgumentException("Invalid name.", nameof(name));
 
             var command = new Command(this, name, description);
@@ -565,7 +565,7 @@ namespace Tetractic.CommandLine
         {
             if (name is null)
                 throw new ArgumentNullException(nameof(name));
-            if (name.Length == 0 || ContainsWhitespace(name))
+            if (name.Length == 0 || ContainsWhiteSpace(name))
                 throw new ArgumentException("Invalid name.", nameof(name));
         }
 
@@ -575,7 +575,7 @@ namespace Tetractic.CommandLine
         {
             if (shortName == '-' || shortName == '=' || char.IsWhiteSpace(shortName.GetValueOrDefault()) || char.IsSurrogate(shortName.GetValueOrDefault()))
                 throw new ArgumentException("Invalid name.", nameof(shortName));
-            if (longName != null && (longName.Length == 0 || ContainsWhitespace(longName) || longName.IndexOf('=') >= 0))
+            if (longName != null && (longName.Length == 0 || ContainsWhiteSpace(longName) || longName.IndexOf('=') >= 0))
                 throw new ArgumentException("Invalid name.", nameof(longName));
         }
 
@@ -587,11 +587,13 @@ namespace Tetractic.CommandLine
         {
             if (parameterName is null)
                 throw new ArgumentNullException(nameof(parameterName));
-            if (parameterName.Length == 0 || ContainsWhitespace(parameterName))
+            if (parameterName.Length == 0 || ContainsWhiteSpace(parameterName))
                 throw new ArgumentException("Invalid name.", nameof(parameterName));
         }
 
-        private static bool ContainsWhitespace(string s)
+#pragma warning disable CA1704 // Identifiers should be spelled correctly
+        private static bool ContainsWhiteSpace(string s)
+#pragma warning restore CA1704 // Identifiers should be spelled correctly
         {
             foreach (char c in s)
                 if (char.IsWhiteSpace(c))
