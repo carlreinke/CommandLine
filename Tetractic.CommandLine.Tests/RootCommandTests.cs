@@ -705,7 +705,25 @@ namespace Tetractic.CommandLine.Tests
         }
 
         [Fact]
-        public static void Execute_RequiredParametersCompletelyUnspecified_WritesHelp()
+        public static void Execute_RequiredParametersCompletelyUnspecifiedAndOptionSpecified_ThrowsInvalidCommandLineException()
+        {
+            var rootCommand = new RootCommand("test");
+            {
+                _ = rootCommand.AddOption('a', null, "");
+
+                _ = rootCommand.AddParameter("sierra", "");
+            }
+
+            SetThrowingHelpHandlerRecursive(rootCommand);
+
+            var ex = Assert.Throws<InvalidCommandLineException>(() => rootCommand.Execute(new[] { "-a" }));
+
+            Assert.Equal(@"Expected additional arguments.", ex.Message);
+            Assert.Equal(rootCommand, ex.Command);
+        }
+
+        [Fact]
+        public static void Execute_RequiredParametersCompletelyUnspecifiedAndNoOptionsSpecified_WritesHelp()
         {
             var rootCommand = new RootCommand("test");
             {
@@ -723,6 +741,32 @@ namespace Tetractic.CommandLine.Tests
             SetHelpHandlerRecursive(rootCommand, writer);
 
             int returnCode = rootCommand.Execute(Array.Empty<string>());
+
+            Assert.Contains("yankee", writer.ToString());
+            Assert.Equal(-1, returnCode);
+        }
+
+        [Fact]
+        public static void Execute_RequiredParametersCompletelyUnspecifiedAndVerboseOptionSpecified_WritesHelp()
+        {
+            var rootCommand = new RootCommand("test");
+            {
+                rootCommand.VerboseOption = rootCommand.AddOption('v', "verbose", "", inherited: true);
+
+                _ = rootCommand.AddParameter("sierra", "yankee");
+
+                rootCommand.SetInvokeHandler(() =>
+                {
+                    Assert.True(false);
+
+                    return 123;
+                });
+            }
+
+            var writer = new StringWriter();
+            SetHelpHandlerRecursive(rootCommand, writer);
+
+            int returnCode = rootCommand.Execute(new[] { "-v" });
 
             Assert.Contains("yankee", writer.ToString());
             Assert.Equal(-1, returnCode);

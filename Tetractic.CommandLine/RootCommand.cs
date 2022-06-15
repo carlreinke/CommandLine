@@ -247,7 +247,7 @@ namespace Tetractic.CommandLine
 
                 if (parameter.Count == 0)
                 {
-                    if (parameters != null)
+                    if (parameters != null || HasAnyOptionExcept(commandOptions, verboseOption))
                         throw new InvalidCommandLineException(command, $"Expected additional arguments.");
 
                     command.WriteHelp(verboseOption?.Count > 0);
@@ -274,6 +274,15 @@ namespace Tetractic.CommandLine
                         return option;
 
                 return null;
+            }
+
+            static bool HasAnyOptionExcept(List<CommandOption> options, CommandOption? excludedOption)
+            {
+                foreach (var option in options)
+                    if (option.Count > 0 && option != excludedOption)
+                        return true;
+
+                return false;
             }
         }
     }
