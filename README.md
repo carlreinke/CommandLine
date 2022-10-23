@@ -24,7 +24,7 @@ This library provides command-line argument parsing and help text generation.
 
 ## Example Application
 
-The following code is a simple application that takes a list of numbers and 
+The following code is a simple application that takes a list of numbers and outputs a filtered list.
 
 ```C#
 using System;
