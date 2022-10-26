@@ -24,7 +24,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <EmbedAllSources>true</EmbedAllSources>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    
+
     <Authors>Carl Reinke</Authors>
     <Description>A command-line argument parser.</Description>
     <Copyright>© Carl Reinke</Copyright>
@@ -40,18 +40,18 @@
 
   <ItemGroup>
     <None Include="..\LICENSE.txt">
-      <Pack>True</Pack>
+      <Pack>true</Pack>
       <PackagePath></PackagePath>
     </None>
     <None Include="..\LICENSE.GPL-3.txt">
-      <Pack>True</Pack>
+      <Pack>true</Pack>
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
 
   <ItemGroup>
     <None Include="PackageIcon.png">
-      <Pack>True</Pack>
+      <Pack>true</Pack>
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
