@@ -8,7 +8,6 @@
 // names, trademarks, or service marks.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using Xunit;
 
 namespace Tetractic.CommandLine.Tests
@@ -133,7 +132,7 @@ namespace Tetractic.CommandLine.Tests
             Assert.Equal("option", ex.ParamName);
         }
 
-        private static bool TryParser(string text, [MaybeNullWhen(false)] out int value)
+        private static bool TryParser(string text, out int value)
         {
             value = default;
             return false;

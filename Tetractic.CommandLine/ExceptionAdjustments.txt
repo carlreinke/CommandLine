@@ -4,3 +4,4 @@
 
 P:System.Array.Length get -T:System.OverflowException
 P:System.Collections.Generic.IReadOnlyList`1.Item(System.Int32) get +T:System.ArgumentOutOfRangeException
+M:System.Collections.IEnumerator.Reset() +T:System.NotSupportedException

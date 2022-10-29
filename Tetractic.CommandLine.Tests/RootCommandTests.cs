@@ -9,6 +9,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using Xunit;
 
 namespace Tetractic.CommandLine.Tests
@@ -662,6 +663,60 @@ namespace Tetractic.CommandLine.Tests
             var ex = Assert.Throws<InvalidCommandLineException>(() => rootCommand.Execute(new[] { "one" }));
 
             Assert.Equal($@"Invalid argument ""one"".", ex.Message);
+            Assert.Equal(rootCommand, ex.Command);
+        }
+
+        [Fact]
+        public static void Execute_ExpandWildcardsOnWindowsFalse_WildcardsNotExpanded()
+        {
+            var rootCommand = new RootCommand("test");
+            var parameter = rootCommand.AddVariadicParameter("sierra", "");
+            parameter.ExpandWildcardsOnWindows = false;
+
+            string path = typeof(VariadicCommandParameter<>).Assembly.Location;
+            string arg = path + "*";
+
+            _ = rootCommand.Execute(new[] { arg });
+
+            Assert.Equal(new[] { arg }, parameter.Values);
+        }
+
+        [Fact]
+        public static void Execute_ExpandWildcardsOnWindowsTrue_WildcardsExpandedOnWindows()
+        {
+            var rootCommand = new RootCommand("test");
+            var parameter = rootCommand.AddVariadicParameter("sierra", "");
+            parameter.ExpandWildcardsOnWindows = true;
+
+            string path = typeof(VariadicCommandParameter<>).Assembly.Location;
+            string arg = path + "*";
+
+            _ = rootCommand.Execute(new[] { arg });
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                Assert.Contains(path, parameter.Values);
+            else
+                Assert.Equal(new[] { arg }, parameter.Values);
+        }
+
+        [Fact]
+        public static void Execute_InvalidExpandedArgument_ThrowsInvalidCommandLineException()
+        {
+            var rootCommand = new RootCommand("test");
+            {
+                var parameter = rootCommand.AddVariadicParameter<int>("sierra", "", int.TryParse);
+                parameter.ExpandWildcardsOnWindows = true;
+            }
+
+            string path = typeof(VariadicCommandParameter<>).Assembly.Location;
+            string arg = path + "*";
+
+            var ex = Assert.Throws<InvalidCommandLineException>(() => rootCommand.Execute(new[] { arg }));
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                Assert.Equal($@"Invalid argument ""{path}"".", ex.Message);
+            else
+                Assert.Equal($@"Invalid argument ""{arg}"".", ex.Message);
             Assert.Equal(rootCommand, ex.Command);
         }
 

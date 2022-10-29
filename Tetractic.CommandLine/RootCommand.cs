@@ -10,6 +10,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace Tetractic.CommandLine
 {
@@ -217,8 +218,21 @@ namespace Tetractic.CommandLine
                         throw new InvalidCommandLineException(command, @$"Unexpected argument ""{arg}"".");
                 }
 
-                if (!parameters.Current.TryAcceptValue(arg))
-                    throw new InvalidCommandLineException(command, @$"Invalid argument ""{arg}"".");
+                var parameter = parameters.Current;
+
+                if (parameter.ExpandWildcardsOnWindows &&
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+                    WindowsWildcardExpander.ContainsAnyWildcard(arg))
+                {
+                    foreach (string expandedArg in WindowsWildcardExpander.EnumerateMatches(arg))
+                        if (!parameter.TryAcceptValue(expandedArg))
+                            throw new InvalidCommandLineException(command, @$"Invalid argument ""{expandedArg}"".");
+                }
+                else
+                {
+                    if (!parameter.TryAcceptValue(arg))
+                        throw new InvalidCommandLineException(command, @$"Invalid argument ""{arg}"".");
+                }
 
             nextArg:
                 ;

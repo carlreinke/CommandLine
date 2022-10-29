@@ -46,6 +46,28 @@ namespace Tetractic.CommandLine
         public ValueList Values => new ValueList(_values);
 
         /// <summary>
+        /// Gets or sets a value indicating whether wildcards will be expanded for the command
+        /// parameter when running on Windows.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// When <see cref="ExpandWildcardsOnWindows"/> is <see langword="true"/> and the
+        /// application is running on Windows, arguments containing wildcard characters will be
+        /// expanded before being parsed.
+        /// </para>
+        /// <para>
+        /// The wildcard characters are asterisk (*) and question mark (?).  An asterisk wildcard
+        /// matches zero or more characters.  A question mark wildcard matches exactly one
+        /// character.  All other characters are literals.
+        /// </para>
+        /// </remarks>
+        public new bool ExpandWildcardsOnWindows
+        {
+            get => base.ExpandWildcardsOnWindows;
+            set => base.ExpandWildcardsOnWindows = value;
+        }
+
+        /// <summary>
         /// Attempts to parse specified text to a value and appends it to the list of values stored
         /// into the command parameter.
         /// </summary>

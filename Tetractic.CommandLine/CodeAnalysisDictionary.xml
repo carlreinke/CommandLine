@@ -4,6 +4,7 @@
     <Recognized>
       <Word>arg</Word>
       <Word>args</Word>
+      <Word>expander</Word>
       <Word>subcommand</Word>
       <Word>subcommands</Word>
       <Word>syntaxes</Word>

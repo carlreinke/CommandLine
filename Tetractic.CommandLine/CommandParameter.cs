@@ -80,5 +80,7 @@ namespace Tetractic.CommandLine
         /// returns <see langword="true"/>.
         /// </remarks>
         public abstract bool TryAcceptValue(string text);
+
+        internal bool ExpandWildcardsOnWindows { get; set; }
     }
 }

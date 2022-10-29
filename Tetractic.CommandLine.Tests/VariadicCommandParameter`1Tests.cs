@@ -8,13 +8,25 @@
 // names, trademarks, or service marks.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using Xunit;
 
 namespace Tetractic.CommandLine.Tests
 {
     public static class VariadicCommandParameter_1Tests
     {
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public static void ExpandWildcardsOnWindows_Always_ReturnsSetValue(bool value)
+        {
+            var rootCommand = new RootCommand("test");
+            var parameter = rootCommand.AddVariadicParameter("sierra", "");
+
+            parameter.ExpandWildcardsOnWindows = value;
+
+            Assert.Equal(value, parameter.ExpandWildcardsOnWindows);
+        }
+
         [Fact]
         public static void TryAcceptValue_TextIsNull_ThrowsArgumentNullException()
         {
@@ -59,7 +71,7 @@ namespace Tetractic.CommandLine.Tests
             Assert.Empty(parameter.Values);
         }
 
-        private static bool TryParser(string text, [MaybeNullWhen(false)] out int value)
+        private static bool TryParser(string text, out int value)
         {
             value = default;
             return false;

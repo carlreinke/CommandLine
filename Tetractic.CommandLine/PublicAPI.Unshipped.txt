@@ -1,1 +1,2 @@
-﻿
+﻿Tetractic.CommandLine.VariadicCommandParameter<T>.ExpandWildcardsOnWindows.get -> bool
+Tetractic.CommandLine.VariadicCommandParameter<T>.ExpandWildcardsOnWindows.set -> void
