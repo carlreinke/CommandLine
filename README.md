@@ -42,14 +42,14 @@ internal static class Program
                 parse: int.TryParse);
             numParameter.Optional = true;
 
-            var minParameter = rootCommand.AddOption<int>(
+            var minOption = rootCommand.AddOption<int>(
                 shortName: null,
                 longName: "min",
                 parameterName: "NUM",
                 description: "The minimum integer to include.",
                 parse: int.TryParse);
 
-            var maxParameter = rootCommand.AddOption<int>(
+            var maxOption = rootCommand.AddOption<int>(
                 shortName: null,
                 longName: "max",
                 parameterName: "NUM",
@@ -63,8 +63,8 @@ internal static class Program
 
             rootCommand.SetInvokeHandler(() =>
             {
-                var min = minParameter.GetValueOrDefault(int.MinValue);
-                var max = maxParameter.GetValueOrDefault(int.MaxValue);
+                var min = minOption.GetValueOrDefault(int.MinValue);
+                var max = maxOption.GetValueOrDefault(int.MaxValue);
 
                 foreach (int num in numParameter.Values)
                     if (num >= min && num <= max)
