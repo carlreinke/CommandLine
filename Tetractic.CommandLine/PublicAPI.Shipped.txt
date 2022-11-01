@@ -115,6 +115,8 @@ Tetractic.CommandLine.VariadicCommandOption<T>.ValueList.this[int index].get -> 
 Tetractic.CommandLine.VariadicCommandOption<T>.ValueList.ValueList() -> void
 Tetractic.CommandLine.VariadicCommandOption<T>.Values.get -> Tetractic.CommandLine.VariadicCommandOption<T>.ValueList
 Tetractic.CommandLine.VariadicCommandParameter<T>
+Tetractic.CommandLine.VariadicCommandParameter<T>.ExpandWildcardsOnWindows.get -> bool
+Tetractic.CommandLine.VariadicCommandParameter<T>.ExpandWildcardsOnWindows.set -> void
 Tetractic.CommandLine.VariadicCommandParameter<T>.ValueList
 Tetractic.CommandLine.VariadicCommandParameter<T>.ValueList.Count.get -> int
 Tetractic.CommandLine.VariadicCommandParameter<T>.ValueList.GetEnumerator() -> System.Collections.Generic.IEnumerator<T>!
