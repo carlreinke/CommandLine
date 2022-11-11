@@ -1,2 +1,4 @@
 ﻿- name: API Documentation
   href: obj/docfx/api/Tetractic.CommandLine.yml
+- name: GitHub
+  href: https://github.com/tetractic/CommandLine

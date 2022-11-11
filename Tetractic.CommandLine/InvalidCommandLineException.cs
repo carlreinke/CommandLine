@@ -39,6 +39,8 @@ namespace Tetractic.CommandLine
         /// Gets the command that was active when the command-line arguments were determined to be
         /// invalid.
         /// </summary>
+        /// <value>The command that was active when the command-line arguments were determined to be
+        ///     invalid.</value>
         public Command Command { get; }
     }
 }

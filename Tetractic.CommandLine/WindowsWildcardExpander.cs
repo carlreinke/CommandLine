@@ -102,7 +102,6 @@ namespace Tetractic.CommandLine
         [ExcludeFromCodeCoverage]
         internal readonly struct Provider : IDirectoryProvider, IFileProvider, IPathProvider
         {
-            /// <inheritdoc/>
             private static readonly char[] _invalidPathChars = Path.GetInvalidPathChars();
 
             /// <inheritdoc/>

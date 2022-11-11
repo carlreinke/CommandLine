@@ -17,7 +17,7 @@ namespace Tetractic.CommandLine
     /// <typeparam name="T">The type of value.</typeparam>
     /// <param name="text">The text to parse.</param>
     /// <param name="value">Returns the value that was parsed if parsing was successful; otherwise,
-    ///     returns the uninitialized value.</param>
+    ///     returns the default value for <typeparamref name="T"/>.</param>
     /// <returns><see langword="true"/> is parsing was successful; otherwise,
     ///     <see langword="false"/>.</returns>
     public delegate bool TryParser<T>(string text, [MaybeNullWhen(false)] out T value);

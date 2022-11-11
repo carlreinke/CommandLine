@@ -42,14 +42,15 @@ namespace Tetractic.CommandLine
         }
 
         /// <summary>
-        /// Gets a value indicating whether the command option can store multiple values.  Always
-        /// returns <see langword="true"/>.
+        /// Gets a value indicating whether the command option can store multiple values.
         /// </summary>
+        /// <value>Always <see langword="true"/>.</value>
         public sealed override bool Variadic => true;
 
         /// <summary>
         /// Gets the list of values that have been stored into the command option.
         /// </summary>
+        /// <value>The list of values that have been stored into the command option.</value>
         public ValueList Values => new ValueList(_values);
 
         /// <summary>

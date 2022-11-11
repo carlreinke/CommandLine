@@ -35,20 +35,23 @@ namespace Tetractic.CommandLine
         }
 
         /// <summary>
-        /// Gets a value indicating whether the command parameter can store multiple values.  Always
-        /// returns <see langword="true"/>.
+        /// Gets a value indicating whether the command parameter can store multiple values.
         /// </summary>
+        /// <value>Always <see langword="true"/>.</value>
         public sealed override bool Variadic => true;
 
         /// <summary>
         /// Gets the list of values that have been stored into the command parameter.
         /// </summary>
+        /// <value>The list of values that have been stored into the command parameter.</value>
         public ValueList Values => new ValueList(_values);
 
         /// <summary>
         /// Gets or sets a value indicating whether wildcards will be expanded for the command
         /// parameter when running on Windows.
         /// </summary>
+        /// <value>A value indicating whether wildcards will be expanded for the command parameter
+        ///     when running on Windows.</value>
         /// <remarks>
         /// <para>
         /// When <see cref="ExpandWildcardsOnWindows"/> is <see langword="true"/> and the

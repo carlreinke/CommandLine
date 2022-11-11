@@ -38,19 +38,22 @@ namespace Tetractic.CommandLine
         }
 
         /// <summary>
-        /// Gets a value indicating whether the command parameter can store multiple values.  Always
-        /// returns <see langword="false"/>.
+        /// Gets a value indicating whether the command parameter can store multiple values.
         /// </summary>
+        /// <value>Always <see langword="false"/>.</value>
         public sealed override bool Variadic => false;
 
         /// <summary>
-        /// Gets a value indicating whether a value has been stores into the command parameter.
+        /// Gets a value indicating whether a value has been stored into the command parameter.
         /// </summary>
+        /// <value>A value indicating whether a value has been stored into the command parameter.
+        ///     </value>
         public bool HasValue => Count > 0;
 
         /// <summary>
         /// Gets the value that was stored into the command parameter.
         /// </summary>
+        /// <value>The value that was stored into the command parameter.</value>
         /// <exception cref="InvalidOperationException">The command parameter does not have a value.
         ///     </exception>
         public T Value
@@ -66,8 +69,10 @@ namespace Tetractic.CommandLine
 
         /// <summary>
         /// Gets the value that was stored into the command parameter if the command parameter has a
-        /// value; otherwise, gets the uninitialized value.
+        /// value; otherwise, gets the default value for <typeparamref name="T"/>.
         /// </summary>
+        /// <value>The value that was stored into the command parameter if the command parameter has
+        ///     a value; otherwise, the default value for <typeparamref name="T"/>.</value>
         [MaybeNull]
         public T ValueOrDefault => _value;
 

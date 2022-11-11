@@ -37,42 +37,52 @@ namespace Tetractic.CommandLine
         /// <summary>
         /// Gets the long name of the command option.
         /// </summary>
+        /// <value>The long name of the command option.</value>
         public string? LongName { get; }
 
         /// <summary>
         /// Gets the short name of the command option.
         /// </summary>
+        /// <value>The short name of the command option.</value>
         public char? ShortName { get; }
 
         /// <summary>
         /// Gets the description of the command option.
         /// </summary>
+        /// <value>The description of the command option.</value>
         public string Description { get; }
 
         /// <summary>
         /// Gets a value indicating whether the command option can store multiple values.
         /// </summary>
+        /// <value>A value indicating whether the command option can store multiple values.</value>
         public virtual bool Variadic => false;
 
         /// <summary>
         /// Gets or sets a value indicating whether the command option must be specified.
         /// </summary>
+        /// <value>A value indicating whether the command option must be specified.</value>
         public bool Required { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether the command option is inherited by subcommands.
         /// </summary>
+        /// <value>A value indicating whether the command option is inherited by subcommands.
+        ///     </value>
         public bool Inherited { get; }
 
         /// <summary>
         /// Gets or sets a value indicating when the command option appears in the help text for the
         /// command.
         /// </summary>
+        /// <value>A value indicating when the command option appears in the help text for the
+        ///     command.</value>
         public HelpVisibility HelpVisibility { get; set; }
 
         /// <summary>
         /// Gets the number of times that the command option has been accepted.
         /// </summary>
+        /// <value>The number of times that the command option has been accepted.</value>
         public int Count { get; protected set; }
 
         /// <summary>

@@ -54,28 +54,35 @@ namespace Tetractic.CommandLine
         /// <summary>
         /// Gets the parent command of the command, if any.
         /// </summary>
+        /// <value>The parent command of the command, if any.</value>
         public Command? Parent { get; }
 
         /// <summary>
         /// Gets the name of the command.
         /// </summary>
+        /// <value>The name of the command.</value>
         public string Name { get; }
 
         /// <summary>
         /// Gets the description of the command.
         /// </summary>
+        /// <value>The description of the command.</value>
         public string Description { get; }
 
         /// <summary>
         /// Gets or sets a value indicating when the command appears in the help text for the parent
         /// command.
         /// </summary>
+        /// <value>A value indicating when the command appears in the help text for the parent
+        ///     command.</value>
         public HelpVisibility HelpVisibility { get; set; }
 
         /// <summary>
         /// Gets or sets the option that causes help text output rather than command invocation when
         /// specified.
         /// </summary>
+        /// <value>The option that causes help text output rather than command invocation when
+        ///     specified.</value>
         /// <exception cref="InvalidOperationException" accessor="set">The command option does not
         ///     exist on the command.</exception>
         public CommandOption? HelpOption
@@ -93,6 +100,7 @@ namespace Tetractic.CommandLine
         /// <summary>
         /// Gets or sets the option that causes help text output to be verbose when specified.
         /// </summary>
+        /// <value>The option that causes help text output to be verbose when specified.</value>
         /// <exception cref="InvalidOperationException" accessor="set">The command option does not
         ///     exist on the command.</exception>
         public CommandOption? VerboseOption
@@ -110,16 +118,19 @@ namespace Tetractic.CommandLine
         /// <summary>
         /// Gets a read-only list of subcommands added to the command.
         /// </summary>
+        /// <value>A read-only list of subcommands added to the command.</value>
         public CommandList Subcommands => new CommandList(_subcommands);
 
         /// <summary>
         /// Gets a read-only list of parameters added to the command.
         /// </summary>
+        /// <value>A read-only list of parameters added to the command.</value>
         public ParameterList Parameters => new ParameterList(_parameters);
 
         /// <summary>
         /// Gets a read-only list of options added to the command.
         /// </summary>
+        /// <value>A read-only list of options added to the command.</value>
         public OptionList Options => new OptionList(_options);
 
         /// <summary>
@@ -180,6 +191,7 @@ namespace Tetractic.CommandLine
         /// <param name="parse">A delegate that attempts to parse a value for the parameter from
         ///     specified text.</param>
         /// <returns>The parameter that was added.</returns>
+        /// <typeparam name="T">The type of value that the command parameter stores.</typeparam>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
         ///     <see langword="null"/>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="description"/> is
@@ -227,6 +239,7 @@ namespace Tetractic.CommandLine
         /// <param name="parse">A delegate that attempts to parse a value for the parameter from
         ///     specified text.</param>
         /// <returns>The parameter that was added.</returns>
+        /// <typeparam name="T">The type of values that the command parameter stores.</typeparam>
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is
         ///     <see langword="null"/>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="description"/> is
@@ -317,6 +330,7 @@ namespace Tetractic.CommandLine
         /// <param name="inherited">Controls whether the command option is inherited by subcommands.
         ///     </param>
         /// <returns>The option that was added.</returns>
+        /// <typeparam name="T">The type of value that the command option stores.</typeparam>
         /// <exception cref="ArgumentNullException"><paramref name="shortName"/> is
         ///     <see langword="null"/> and <paramref name="longName"/> is <see langword="null"/>.
         ///     </exception>
@@ -387,6 +401,7 @@ namespace Tetractic.CommandLine
         /// <param name="inherited">Controls whether the command option is inherited by subcommands.
         ///     </param>
         /// <returns>The option that was added.</returns>
+        /// <typeparam name="T">The type of value that the command option stores.</typeparam>
         /// <exception cref="ArgumentNullException"><paramref name="shortName"/> is
         ///     <see langword="null"/> and <paramref name="longName"/> is <see langword="null"/>.
         ///     </exception>

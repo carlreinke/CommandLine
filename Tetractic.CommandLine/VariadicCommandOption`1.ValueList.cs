@@ -30,6 +30,7 @@ namespace Tetractic.CommandLine
             /// <summary>
             /// Gets the number of values in the list.
             /// </summary>
+            /// <value>The number of values in the list.</value>
             public int Count => _values is null ? 0 : _values.Count;
 
             /// <summary>
@@ -69,6 +70,7 @@ namespace Tetractic.CommandLine
                 return _values.GetEnumerator();
             }
 
+            /// <inheritdoc cref="GetEnumerator"/>
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
     }

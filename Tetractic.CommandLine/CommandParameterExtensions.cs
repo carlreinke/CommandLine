@@ -20,8 +20,10 @@ namespace Tetractic.CommandLine
         /// Returns the value that was stored into the command parameter if the command parameter
         /// has a value; otherwise, returns a <see langword="null"/>.
         /// </summary>
+        /// <param name="parameter">The command parameter.</param>
         /// <returns>The value that was stored into the command parameter if the command parameter
         ///     has a value; otherwise, <see langword="null"/>.</returns>
+        /// <typeparam name="T">The type of value that the command parameter stores.</typeparam>
         /// <exception cref="ArgumentNullException"><paramref name="parameter"/> is
         ///     <see langword="null"/>.</exception>
         public static T? GetValueOrNull<T>(this CommandParameter<T> parameter)

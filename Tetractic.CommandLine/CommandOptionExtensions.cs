@@ -20,8 +20,10 @@ namespace Tetractic.CommandLine
         /// Returns the value that was stored into the command option if the command option has a
         /// value; otherwise, returns a <see langword="null"/>.
         /// </summary>
+        /// <param name="option">The command option.</param>
         /// <returns>The value that was stored into the command option if the command option has a
         ///     value; otherwise, <see langword="null"/>.</returns>
+        /// <typeparam name="T">The type of value that the command option stores.</typeparam>
         /// <exception cref="ArgumentNullException"><paramref name="option"/> is
         ///     <see langword="null"/>.</exception>
         public static T? GetValueOrNull<T>(this CommandOption<T> option)

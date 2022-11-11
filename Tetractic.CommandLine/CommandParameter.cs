@@ -12,7 +12,8 @@ using System;
 namespace Tetractic.CommandLine
 {
     /// <summary>
-    /// Represents a command parameter.
+    /// Represents a command parameter that stores a value or multiple values without respect to
+    /// value type or whether it is variadic.
     /// </summary>
     public abstract class CommandParameter
     {
@@ -34,33 +35,42 @@ namespace Tetractic.CommandLine
         /// <summary>
         /// Gets the name of the command parameter.
         /// </summary>
+        /// <value>The name of the command parameter.</value>
         public string Name { get; }
 
         /// <summary>
         /// Gets the description of the command parameter.
         /// </summary>
+        /// <value>The description of the command parameter.</value>
         public string Description { get; }
 
         /// <summary>
         /// Gets a value indicating whether the command parameter can store multiple values.
         /// </summary>
+        /// <value>A value indicating whether the command parameter can store multiple values.
+        ///     </value>
         public abstract bool Variadic { get; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the command parameter and all subsequent command
         /// parameters may be omitted.
         /// </summary>
+        /// <value>A value indicating whether the command parameter and all subsequent command
+        ///     parameters may be omitted.</value>
         public bool Optional { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating when the command parameter appears in the help text for
         /// the command.
         /// </summary>
+        /// <value>A value indicating when the command parameter appears in the help text for the
+        ///     command.</value>
         public HelpVisibility HelpVisibility { get; set; }
 
         /// <summary>
         /// Gets the number of values that have been accepted into the command parameter.
         /// </summary>
+        /// <value>The number of values that have been accepted into the command parameter.</value>
         public int Count { get; protected set; }
 
         /// <summary>

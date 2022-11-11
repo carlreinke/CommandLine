@@ -32,7 +32,19 @@
         ]
       },
     ],
+    "resource": [
+      {
+        "files": [
+          "images/**"
+        ]
+      }
+    ],
     "dest": "bin/Docs",
+    "globalMetadata": {
+      "_appTitle": "Tetractic.CommandLine",
+      "_appLogoPath": "images/logo.svg",
+      "_appFaviconPath": "images/favicon.svg"
+    },
     "disableGitFeatures": true
   }
 }

@@ -30,6 +30,7 @@ namespace Tetractic.CommandLine
             /// <summary>
             /// Gets the number of command parameters in the list.
             /// </summary>
+            /// <value>The number of command parameters in the list.</value>
             public int Count => _list is null ? 0 : _list.Count;
 
             /// <summary>
@@ -69,6 +70,7 @@ namespace Tetractic.CommandLine
                 return _list.GetEnumerator();
             }
 
+            /// <inheritdoc cref="GetEnumerator"/>
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
             internal bool Exists(Predicate<CommandParameter> match) => _list.Exists(match);

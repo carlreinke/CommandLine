@@ -12,7 +12,8 @@ using System;
 namespace Tetractic.CommandLine
 {
     /// <summary>
-    /// Represents a command option that stores a value or multiple values.
+    /// Represents a command option that stores a value or multiple values without respect to value
+    /// type.
     /// </summary>
     public abstract class ParameterizedCommandOption : CommandOption
     {
@@ -35,11 +36,13 @@ namespace Tetractic.CommandLine
         /// <summary>
         /// Gets a value indicating whether the command option parameter is optional.
         /// </summary>
+        /// <value>A value indicating whether the command option parameter is optional.</value>
         public bool ParameterIsOptional { get; private protected set; }
 
         /// <summary>
         /// Gets the name of the command option parameter.
         /// </summary>
+        /// <value>The name of the command option parameter.</value>
         public string ParameterName { get; }
     }
 }
