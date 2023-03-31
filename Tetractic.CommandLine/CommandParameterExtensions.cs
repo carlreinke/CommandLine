@@ -18,7 +18,7 @@ namespace Tetractic.CommandLine
     {
         /// <summary>
         /// Returns the value that was stored into the command parameter if the command parameter
-        /// has a value; otherwise, returns a <see langword="null"/>.
+        /// has a value; otherwise, returns <see langword="null"/>.
         /// </summary>
         /// <param name="parameter">The command parameter.</param>
         /// <returns>The value that was stored into the command parameter if the command parameter

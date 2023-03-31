@@ -39,7 +39,7 @@ namespace Tetractic.CommandLine
         /// <summary>
         /// Enumerates the file system paths that match a pattern.
         /// </summary>
-        /// <param name="pattern">The pattern.  A relative pattern is evaluated</param>
+        /// <param name="pattern">The pattern.</param>
         /// <returns>An enumerator over the patterns.</returns>
         /// <remarks>
         /// <para>
