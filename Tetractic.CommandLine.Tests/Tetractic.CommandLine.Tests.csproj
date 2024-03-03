@@ -6,6 +6,7 @@
     <LangVersion>8.0</LangVersion>
     <Features>strict</Features>
     <Nullable>enable</Nullable>
+    <WarningLevel>9999</WarningLevel>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
