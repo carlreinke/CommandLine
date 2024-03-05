@@ -1,4 +1,4 @@
-﻿// Copyright 2022 Carl Reinke
+﻿// Copyright 2024 Carl Reinke
 //
 // This file is part of a library that is licensed under the terms of the GNU
 // Lesser General Public License Version 3 as published by the Free Software
@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -56,98 +57,28 @@ namespace Tetractic.CommandLine
             if (args is null)
                 throw new ArgumentNullException(nameof(args));
 
-            Command command = this;
-            var helpOption = command.HelpOption;
-            var verboseOption = command.VerboseOption;
-            var commandOptions = command.GetOptions();
-
-            bool optionsTerminated = false;
-            bool commandDetermined = false;
+            var parser = new ArgParser(this);
             IEnumerator<CommandParameter>? parameters = null;
 
-            for (int a = 0; a < args.Length; ++a)
+            for (int i = 0; i < args.Length; ++i)
             {
-                string arg = args[a];
+                string arg = args[i];
 
                 if (arg is null)
                     throw new ArgumentNullException(nameof(args), "Array element cannot be null.");
 
-                if (!optionsTerminated && arg.Length > 1 && arg[0] == '-')
+                var result = parser.Parse(arg);
+            next:
+                switch (result.Kind)
                 {
-                    if (arg[1] != '-')
+                    case ArgParser.ResultKind.UnrecognizedShortOption:
                     {
-                        // Handle short option(s).
-                        for (int o = 1; o < arg.Length; ++o)
-                        {
-                            char name = arg[o];
-
-                            var option = FindOptionShort(commandOptions, name);
-                            if (option is null)
-                                throw new InvalidCommandLineException(command, @$"Unrecognized option ""-{name}"".");
-
-                            if (option is ParameterizedCommandOption parameterizedOption)
-                            {
-                                string? value;
-
-                                if (o + 1 != arg.Length && arg[o + 1] == '=')
-                                {
-                                    value = arg.Substring(o + 2);
-                                    o = arg.Length - 1;
-                                }
-                                else
-                                {
-                                    value = null;
-                                }
-
-                                if (value is null && parameterizedOption.ParameterIsOptional)
-                                {
-                                    option.Accept();
-                                }
-                                else
-                                {
-                                    if (value is null)
-                                    {
-                                        if (a + 1 == args.Length)
-                                            throw new InvalidCommandLineException(command, @$"Missing value for option ""-{name}"".");
-
-                                        a += 1;
-                                        value = args[a];
-                                    }
-
-                                    if (!option.TryAcceptValue(value))
-                                        throw new InvalidCommandLineException(command, @$"Invalid value ""{value}"" for option ""-{name}"".");
-                                }
-                            }
-                            else
-                            {
-                                option.Accept();
-                            }
-
-                            commandDetermined |= !option.Inherited;
-                        }
-                        continue;
+                        throw new InvalidCommandLineException(parser.Command, @$"Unrecognized option ""-{result.ShortName}"".");
                     }
-                    else if (arg.Length > 2)
+                    case ArgParser.ResultKind.ShortOption:
                     {
-                        // Handle long option.
-                        string name;
-                        string? value;
-
-                        int separatorIndex = arg.IndexOf('=', 2);
-                        if (separatorIndex >= 0)
-                        {
-                            name = arg.Substring(2, separatorIndex - 2);
-                            value = arg.Substring(separatorIndex + 1);
-                        }
-                        else
-                        {
-                            name = arg.Substring(2);
-                            value = null;
-                        }
-
-                        var option = FindOptionLong(commandOptions, name);
-                        if (option is null)
-                            throw new InvalidCommandLineException(command, @$"Unrecognized option ""--{name}"".");
+                        var option = result.Option!;
+                        string? value = result.Value;
 
                         if (option is ParameterizedCommandOption parameterizedOption)
                         {
@@ -159,84 +90,119 @@ namespace Tetractic.CommandLine
                             {
                                 if (value is null)
                                 {
-                                    if (a + 1 == args.Length)
-                                        throw new InvalidCommandLineException(command, @$"Missing value for option ""--{name}"".");
+                                    if (parser.HasPendingShortOptions || i + 1 == args.Length)
+                                        throw new InvalidCommandLineException(parser.Command, @$"Missing value for option ""-{result.ShortName}"".");
 
-                                    a += 1;
-                                    value = args[a];
+                                    i += 1;
+                                    value = args[i];
                                 }
 
                                 if (!option.TryAcceptValue(value))
-                                    throw new InvalidCommandLineException(command, @$"Invalid value ""{value}"" for option ""--{name}"".");
+                                    throw new InvalidCommandLineException(parser.Command, @$"Invalid value ""{value}"" for option ""-{result.ShortName}"".");
                             }
                         }
                         else
                         {
                             if (value != null)
-                                throw new InvalidCommandLineException(command, @$"Unexpected value ""{value}"" for option ""--{name}"".");
+                                throw new InvalidCommandLineException(parser.Command, @$"Unexpected value ""{value}"" for option ""-{result.ShortName}"".");
 
                             option.Accept();
                         }
 
-                        commandDetermined |= !option.Inherited;
-                        continue;
-                    }
-                    else
-                    {
-                        // "--" terminates option parsing.
-                        optionsTerminated = true;
-                        continue;
-                    }
-                }
-
-                if (!commandDetermined)
-                {
-                    foreach (var subcommand in command.Subcommands)
-                    {
-                        if (arg.Equals(subcommand.Name, StringComparison.InvariantCulture))
+                        if (parser.HasPendingShortOptions)
                         {
-                            command = subcommand;
-                            helpOption = command.GetHelpOption();
-                            verboseOption = command.GetVerboseOption();
-                            commandOptions = command.GetOptions();
-                            goto nextArg;
+                            result = parser.ParseShortOption();
+                            goto next;
                         }
+                        break;
                     }
+                    case ArgParser.ResultKind.UnrecognizedLongOption:
+                    {
+                        throw new InvalidCommandLineException(parser.Command, @$"Unrecognized option ""--{result.LongName}"".");
+                    }
+                    case ArgParser.ResultKind.LongOption:
+                    {
+                        var option = result.Option!;
+                        string? value = result.Value;
 
-                    commandDetermined = true;
-                }
+                        if (option is ParameterizedCommandOption parameterizedOption)
+                        {
+                            if (value is null && parameterizedOption.ParameterIsOptional)
+                            {
+                                option.Accept();
+                            }
+                            else
+                            {
+                                if (value is null)
+                                {
+                                    if (i + 1 == args.Length)
+                                        throw new InvalidCommandLineException(parser.Command, @$"Missing value for option ""--{result.LongName}"".");
 
-                if (parameters is null)
-                {
-                    parameters = command.Parameters.GetEnumerator();
-                    if (!parameters.MoveNext())
-                        throw new InvalidCommandLineException(command, @$"Unexpected argument ""{arg}"".");
-                }
-                else
-                {
-                    if (!parameters.Current.Variadic && !parameters.MoveNext())
-                        throw new InvalidCommandLineException(command, @$"Unexpected argument ""{arg}"".");
-                }
+                                    i += 1;
+                                    value = args[i];
+                                }
 
-                var parameter = parameters.Current;
+                                if (!option.TryAcceptValue(value))
+                                    throw new InvalidCommandLineException(parser.Command, @$"Invalid value ""{value}"" for option ""--{result.LongName}"".");
+                            }
+                        }
+                        else
+                        {
+                            if (value != null)
+                                throw new InvalidCommandLineException(parser.Command, @$"Unexpected value ""{value}"" for option ""--{result.LongName}"".");
 
-                if (parameter.ExpandWildcardsOnWindows &&
-                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
-                    WindowsWildcardExpander.ContainsAnyWildcard(arg))
-                {
-                    foreach (string expandedArg in WindowsWildcardExpander.EnumerateMatches(arg))
-                        if (!parameter.TryAcceptValue(expandedArg))
-                            throw new InvalidCommandLineException(command, @$"Invalid argument ""{expandedArg}"".");
-                }
-                else
-                {
-                    if (!parameter.TryAcceptValue(arg))
-                        throw new InvalidCommandLineException(command, @$"Invalid argument ""{arg}"".");
-                }
+                            option.Accept();
+                        }
+                        break;
+                    }
+                    case ArgParser.ResultKind.OptionsTerminator:
+                    case ArgParser.ResultKind.Subcommand:
+                    {
+                        break;
+                    }
+                    case ArgParser.ResultKind.Parameter:
+                    {
+                        if (parameters is null)
+                        {
+                            parameters = parser.Command.Parameters.GetEnumerator();
+                            if (!parameters.MoveNext())
+                                throw new InvalidCommandLineException(parser.Command, @$"Unexpected argument ""{arg}"".");
+                        }
+                        else
+                        {
+                            if (!parameters.Current.Variadic && !parameters.MoveNext())
+                                throw new InvalidCommandLineException(parser.Command, @$"Unexpected argument ""{arg}"".");
+                        }
 
-            nextArg:
-                ;
+                        var parameter = parameters.Current;
+
+                        if (parameter.ExpandWildcardsOnWindows &&
+                            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+                            WindowsWildcardExpander.ContainsAnyWildcard(arg))
+                        {
+                            foreach (string expandedArg in WindowsWildcardExpander.EnumerateMatches(arg))
+                                if (!parameter.TryAcceptValue(expandedArg))
+                                    throw new InvalidCommandLineException(parser.Command, @$"Invalid argument ""{expandedArg}"".");
+                        }
+                        else
+                        {
+                            if (!parameter.TryAcceptValue(arg))
+                                throw new InvalidCommandLineException(parser.Command, @$"Invalid argument ""{arg}"".");
+                        }
+                        break;
+                    }
+                    default:
+                    {
+                        Debug.Fail("Unreachable.");
+                        break;
+                    }
+                }
             }
+
+            var command = parser.Command;
+            var commandOptions = parser.CommandOptions;
+            var helpOption = command.GetHelpOption();
+            var verboseOption = command.GetVerboseOption();
 
             if (helpOption?.Count > 0)
             {
@@ -271,24 +237,6 @@ namespace Tetractic.CommandLine
             }
 
             return command.Invoke();
-
-            static CommandOption? FindOptionShort(List<CommandOption> options, char name)
-            {
-                foreach (var option in options)
-                    if (name.Equals(option.ShortName))
-                        return option;
-
-                return null;
-            }
-
-            static CommandOption? FindOptionLong(List<CommandOption> options, string name)
-            {
-                foreach (var option in options)
-                    if (name.Equals(option.LongName, StringComparison.InvariantCulture))
-                        return option;
-
-                return null;
-            }
 
             static bool HasAnyOptionExcept(List<CommandOption> options, CommandOption? excludedOption)
             {

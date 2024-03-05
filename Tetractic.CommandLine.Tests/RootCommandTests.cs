@@ -1,4 +1,4 @@
-﻿// Copyright 2022 Carl Reinke
+﻿// Copyright 2024 Carl Reinke
 //
 // This file is part of a library that is licensed under the terms of the GNU
 // Lesser General Public License Version 3 as published by the Free Software
@@ -130,6 +130,7 @@ namespace Tetractic.CommandLine.Tests
         }
 
         [Theory]
+        [InlineData(new[] { "-a=test" }, "-a", "test")]
         [InlineData(new[] { "--alpha=test" }, "--alpha", "test")]
         public static void Execute_UnparameterizedOptionUnexpectedValue_ThrowsInvalidCommandLineException(string[] args, string optionName, string valueText)
         {
