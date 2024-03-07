@@ -53,9 +53,11 @@ namespace Tetractic.CommandLine
         public string Description { get; }
 
         /// <summary>
-        /// Gets a value indicating whether the command option can store multiple values.
+        /// Gets a value indicating whether specifying the command option multiple times has a
+        /// different effect than specifying it once.
         /// </summary>
-        /// <value>A value indicating whether the command option can store multiple values.</value>
+        /// <value>A value indicating whether specifying the command option multiple times has a
+        ///     different effect than specifying it once.</value>
         public virtual bool Variadic => false;
 
         /// <summary>

@@ -1,1 +1,4 @@
-﻿Tetractic.CommandLine.RootCommand.Reset() -> void
+﻿override Tetractic.CommandLine.VariadicCommandOption.Variadic.get -> bool
+Tetractic.CommandLine.Command.AddVariadicOption(char? shortName, string? longName, string! description, bool inherited = false) -> Tetractic.CommandLine.VariadicCommandOption!
+Tetractic.CommandLine.RootCommand.Reset() -> void
+Tetractic.CommandLine.VariadicCommandOption

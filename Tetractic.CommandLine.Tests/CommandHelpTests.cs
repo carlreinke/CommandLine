@@ -1,4 +1,4 @@
-﻿// Copyright 2022 Carl Reinke
+﻿// Copyright 2024 Carl Reinke
 //
 // This file is part of a library that is licensed under the terms of the GNU
 // Lesser General Public License Version 3 as published by the Free Software
@@ -328,6 +328,24 @@ Options:
         }
 
         [Fact]
+        public static void WriteHelp_HasVisibleVariadicOption_WritesExpectedHelpText()
+        {
+            var rootCommand = new RootCommand("test");
+            _ = rootCommand.AddVariadicOption('a', "alpha", "Enables the alpha subsystem.");
+
+            string expectedText =
+@"Usage: test [<options>]
+
+Options:
+  -a --alpha ...  Enables the alpha subsystem.
+";
+
+            string expectedVerboseText = expectedText;
+
+            AssertHelpText(rootCommand, expectedText, expectedVerboseText);
+        }
+
+        [Fact]
         public static void WriteHelp_HasVisibleParameterizedVariadicOption_WritesExpectedHelpText()
         {
             var rootCommand = new RootCommand("test");
@@ -522,6 +540,25 @@ Options:
 
 Options:
   -a --alpha[=value]  Enables the alpha subsystem.
+";
+
+            string expectedVerboseText = expectedText;
+
+            AssertHelpText(rootCommand, expectedText, expectedVerboseText);
+        }
+
+        [Fact]
+        public static void WriteHelp_HasVisibleRequiredVariadicOption_WritesExpectedHelpText()
+        {
+            var rootCommand = new RootCommand("test");
+            var option = rootCommand.AddVariadicOption('a', "alpha", "Enables the alpha subsystem.");
+            option.Required = true;
+
+            string expectedText =
+@"Usage: test -a ...
+
+Options:
+  -a --alpha ...  Enables the alpha subsystem.
 ";
 
             string expectedVerboseText = expectedText;

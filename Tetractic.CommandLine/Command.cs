@@ -279,6 +279,13 @@ namespace Tetractic.CommandLine
         ///     same short name.</exception>
         /// <exception cref="InvalidOperationException">The command already has an option with the
         ///     same long name.</exception>
+        /// <remarks>
+        /// Both <see cref="AddOption(char?, string?, string, bool)"/> and
+        /// <see cref="AddVariadicOption(char?, string?, string, bool)"/> allow the option to be
+        /// specified multiple times. The former is meant for options that enable/disable some
+        /// behavior when specified, and the latter is meant for options that produce different
+        /// behavior depending on the number of times specified.
+        /// </remarks>
         public CommandOption AddOption(char? shortName, string? longName, string description, bool inherited = false)
         {
             ValidateOptionNames(shortName, longName);
@@ -354,6 +361,42 @@ namespace Tetractic.CommandLine
             ValidateOptionParameterName(parameterName);
 
             var option = new CommandOption<T>(shortName, longName, parameterName, description, parse, inherited);
+
+            return AddOption(option);
+        }
+
+        /// <summary>
+        /// Adds a parameterless option to the command.  The option can be specified multiple times.
+        /// </summary>
+        /// <param name="shortName">The short name of the option.</param>
+        /// <param name="longName">The long name of the option.</param>
+        /// <param name="description">The description of the option.</param>
+        /// <param name="inherited">Controls whether the command option is inherited by subcommands.
+        ///     </param>
+        /// <returns>The option that was added.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="shortName"/> is
+        ///     <see langword="null"/> and <paramref name="longName"/> is <see langword="null"/>.
+        ///     </exception>
+        /// <exception cref="ArgumentException"><paramref name="shortName"/> is invalid.</exception>
+        /// <exception cref="ArgumentException"><paramref name="longName"/> is invalid.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="description"/> is
+        ///     <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">The command already has an option with the
+        ///     same short name.</exception>
+        /// <exception cref="InvalidOperationException">The command already has an option with the
+        ///     same long name.</exception>
+        /// <remarks>
+        /// Both <see cref="AddOption(char?, string?, string, bool)"/> and
+        /// <see cref="AddVariadicOption(char?, string?, string, bool)"/> allow the option to be
+        /// specified multiple times. The former is meant for options that enable/disable some
+        /// behavior when specified, and the latter is meant for options that produce different
+        /// behavior depending on the number of times specified.
+        /// </remarks>
+        public VariadicCommandOption AddVariadicOption(char? shortName, string? longName, string description, bool inherited = false)
+        {
+            ValidateOptionNames(shortName, longName);
+
+            var option = new VariadicCommandOption(shortName, longName, description, inherited);
 
             return AddOption(option);
         }

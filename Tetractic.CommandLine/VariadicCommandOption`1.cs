@@ -42,7 +42,8 @@ namespace Tetractic.CommandLine
         }
 
         /// <summary>
-        /// Gets a value indicating whether the command option can store multiple values.
+        /// Gets a value indicating whether specifying the command option multiple times has a
+        /// different effect than specifying it once.
         /// </summary>
         /// <value>Always <see langword="true"/>.</value>
         public sealed override bool Variadic => true;

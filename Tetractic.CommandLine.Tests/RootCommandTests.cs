@@ -99,19 +99,22 @@ namespace Tetractic.CommandLine.Tests
         [InlineData(new[] { "-aa" }, 2, 0)]
         [InlineData(new[] { "-ab" }, 1, 1)]
         [InlineData(new[] { "-ba" }, 1, 1)]
+        [InlineData(new[] { "-bb" }, 0, 2)]
         [InlineData(new[] { "-a", "-a" }, 2, 0)]
         [InlineData(new[] { "-a", "-b" }, 1, 1)]
         [InlineData(new[] { "-b", "-a" }, 1, 1)]
+        [InlineData(new[] { "-b", "-b" }, 0, 2)]
         [InlineData(new[] { "--alpha" }, 1, 0)]
         [InlineData(new[] { "--alpha", "--alpha" }, 2, 0)]
         [InlineData(new[] { "--alpha", "--bravo" }, 1, 1)]
         [InlineData(new[] { "--bravo", "--alpha" }, 1, 1)]
+        [InlineData(new[] { "--bravo", "--bravo" }, 0, 2)]
         public static void Execute_UnparameterizedOption_OptionCountIsIncremented(string[] args, int expectedOptionACount, int expectedOptionBCount)
         {
             var rootCommand = new RootCommand("test");
             {
                 var optionA = rootCommand.AddOption('a', "alpha", "");
-                var optionB = rootCommand.AddOption('b', "bravo", "");
+                var optionB = rootCommand.AddVariadicOption('b', "bravo", "");
 
                 rootCommand.SetInvokeHandler(() =>
                 {
@@ -1023,19 +1026,22 @@ namespace Tetractic.CommandLine.Tests
 
             var optionB = rootCommand.AddOption('b', null, "value", "");
 
-            var optionC = rootCommand.AddVariadicOption('c', null, "value", "");
+            var optionC = rootCommand.AddVariadicOption('c', null, "");
+
+            var optionD = rootCommand.AddVariadicOption('d', null, "value", "");
 
             var parameterS = rootCommand.AddParameter("sierra", "");
 
             var parameterT = rootCommand.AddVariadicParameter("tango", "");
 
-            _ = rootCommand.Execute(new[] { "-a", "-b=b", "-c=c", "s", "t" });
+            _ = rootCommand.Execute(new[] { "-a", "-b=b", "-c", "-d=d", "s", "t" });
 
             Assert.Equal(1, optionA.Count);
             Assert.Equal(1, optionB.Count);
             Assert.NotNull(optionB.Value);
             Assert.Equal(1, optionC.Count);
-            Assert.Single(optionC.Values);
+            Assert.Equal(1, optionD.Count);
+            Assert.Single(optionD.Values);
             Assert.Equal(1, parameterS.Count);
             Assert.NotNull(parameterS.Value);
             Assert.Equal(1, parameterT.Count);
@@ -1047,7 +1053,8 @@ namespace Tetractic.CommandLine.Tests
             Assert.Equal(0, optionB.Count);
             Assert.Throws<InvalidOperationException>(() => optionB.Value);
             Assert.Equal(0, optionC.Count);
-            Assert.Empty(optionC.Values);
+            Assert.Equal(0, optionD.Count);
+            Assert.Empty(optionD.Values);
             Assert.Equal(0, parameterS.Count);
             Assert.Throws<InvalidOperationException>(() => parameterS.Value);
             Assert.Equal(0, parameterT.Count);
