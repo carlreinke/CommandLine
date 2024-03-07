@@ -1,4 +1,4 @@
-﻿// Copyright 2022 Carl Reinke
+﻿// Copyright 2024 Carl Reinke
 //
 // This file is part of a library that is licensed under the terms of the GNU
 // Lesser General Public License Version 3 as published by the Free Software
@@ -72,6 +72,12 @@ namespace Tetractic.CommandLine
 
             /// <inheritdoc cref="GetEnumerator"/>
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+            internal void Clear()
+            {
+                _values.Clear();
+                _values.Capacity = 0;
+            }
         }
     }
 }

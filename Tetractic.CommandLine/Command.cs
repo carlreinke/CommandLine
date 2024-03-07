@@ -1,4 +1,4 @@
-﻿// Copyright 2022 Carl Reinke
+﻿// Copyright 2024 Carl Reinke
 //
 // This file is part of a library that is licensed under the terms of the GNU
 // Lesser General Public License Version 3 as published by the Free Software
@@ -542,6 +542,18 @@ namespace Tetractic.CommandLine
                     if (option.Inherited)
                         result.Add(option);
             return result;
+        }
+
+        internal void Reset()
+        {
+            foreach (var subcommand in Subcommands)
+                subcommand.Reset();
+
+            foreach (var parameter in Parameters)
+                parameter.Reset();
+
+            foreach (var option in Options)
+                option.Reset();
         }
 
         private static int DefaultInvoke() => -1;

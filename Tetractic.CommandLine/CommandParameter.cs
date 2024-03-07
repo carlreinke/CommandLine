@@ -1,4 +1,4 @@
-﻿// Copyright 2022 Carl Reinke
+﻿// Copyright 2024 Carl Reinke
 //
 // This file is part of a library that is licensed under the terms of the GNU
 // Lesser General Public License Version 3 as published by the Free Software
@@ -73,6 +73,8 @@ namespace Tetractic.CommandLine
         /// <value>The number of values that have been accepted into the command parameter.</value>
         public int Count { get; protected set; }
 
+        internal bool ExpandWildcardsOnWindows { get; set; }
+
         /// <summary>
         /// Attempts to parse specified text to a value and stores the value into the command
         /// parameter.
@@ -91,6 +93,6 @@ namespace Tetractic.CommandLine
         /// </remarks>
         public abstract bool TryAcceptValue(string text);
 
-        internal bool ExpandWildcardsOnWindows { get; set; }
+        internal abstract void Reset();
     }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright 2022 Carl Reinke
+﻿// Copyright 2024 Carl Reinke
 //
 // This file is part of a library that is licensed under the terms of the GNU
 // Lesser General Public License Version 3 as published by the Free Software
@@ -132,5 +132,11 @@ namespace Tetractic.CommandLine
         /// <returns>The value that was stored into the command option if the command option has a
         ///     value; otherwise, <paramref name="default"/>.</returns>
         public T GetValueOrDefault(T @default) => HasValue ? _value : @default;
+
+        internal override void Reset()
+        {
+            Count = 0;
+            _value = default!;
+        }
     }
 }

@@ -983,6 +983,99 @@ namespace Tetractic.CommandLine.Tests
             Assert.Equal(0, returnCode);
         }
 
+        [Fact]
+        public static void Reset_Unused_DoesNothing()
+        {
+            var rootCommand = new RootCommand("test");
+
+            var optionA = rootCommand.AddOption('a', null, "");
+
+            var optionB = rootCommand.AddOption('b', null, "value", "");
+
+            var optionC = rootCommand.AddVariadicOption('c', null, "");
+
+            var optionD = rootCommand.AddVariadicOption('d', null, "value", "");
+
+            var parameterS = rootCommand.AddParameter("sierra", "");
+
+            var parameterT = rootCommand.AddVariadicParameter("tango", "");
+
+            rootCommand.Reset();
+
+            Assert.Equal(0, optionA.Count);
+            Assert.Equal(0, optionB.Count);
+            Assert.Throws<InvalidOperationException>(() => optionB.Value);
+            Assert.Equal(0, optionC.Count);
+            Assert.Equal(0, optionD.Count);
+            Assert.Empty(optionD.Values);
+            Assert.Equal(0, parameterS.Count);
+            Assert.Throws<InvalidOperationException>(() => parameterS.Value);
+            Assert.Equal(0, parameterT.Count);
+            Assert.Empty(parameterT.Values);
+        }
+
+        [Fact]
+        public static void Reset_Executed_ResetsParametersAndOptions()
+        {
+            var rootCommand = new RootCommand("test");
+
+            var optionA = rootCommand.AddOption('a', null, "");
+
+            var optionB = rootCommand.AddOption('b', null, "value", "");
+
+            var optionC = rootCommand.AddVariadicOption('c', null, "value", "");
+
+            var parameterS = rootCommand.AddParameter("sierra", "");
+
+            var parameterT = rootCommand.AddVariadicParameter("tango", "");
+
+            _ = rootCommand.Execute(new[] { "-a", "-b=b", "-c=c", "s", "t" });
+
+            Assert.Equal(1, optionA.Count);
+            Assert.Equal(1, optionB.Count);
+            Assert.NotNull(optionB.Value);
+            Assert.Equal(1, optionC.Count);
+            Assert.Single(optionC.Values);
+            Assert.Equal(1, parameterS.Count);
+            Assert.NotNull(parameterS.Value);
+            Assert.Equal(1, parameterT.Count);
+            Assert.Single(parameterT.Values);
+
+            rootCommand.Reset();
+
+            Assert.Equal(0, optionA.Count);
+            Assert.Equal(0, optionB.Count);
+            Assert.Throws<InvalidOperationException>(() => optionB.Value);
+            Assert.Equal(0, optionC.Count);
+            Assert.Empty(optionC.Values);
+            Assert.Equal(0, parameterS.Count);
+            Assert.Throws<InvalidOperationException>(() => parameterS.Value);
+            Assert.Equal(0, parameterT.Count);
+            Assert.Empty(parameterT.Values);
+        }
+
+        [Fact]
+        public static void Reset_ExecutedSubcommand_ResetsSubcommand()
+        {
+            var rootCommand = new RootCommand("test");
+
+            var optionA = rootCommand.AddOption('a', null, "", inherited: true);
+
+            var commandE = rootCommand.AddSubcommand("echo", "");
+
+            var optionB = commandE.AddOption('b', null, "");
+
+            _ = rootCommand.Execute(new[] { "echo", "-a", "-b" });
+
+            Assert.Equal(1, optionA.Count);
+            Assert.Equal(1, optionB.Count);
+
+            rootCommand.Reset();
+
+            Assert.Equal(0, optionA.Count);
+            Assert.Equal(0, optionB.Count);
+        }
+
         private static void SetThrowingHelpHandlerRecursive(Command command)
         {
             command.SetHelpHandler((command, verbose) => throw new Exception());

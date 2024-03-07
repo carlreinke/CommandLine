@@ -1,1 +1,1 @@
-﻿
+﻿Tetractic.CommandLine.RootCommand.Reset() -> void

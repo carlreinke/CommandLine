@@ -247,5 +247,10 @@ namespace Tetractic.CommandLine
                 return false;
             }
         }
+
+        /// <summary>
+        /// Resets the parameters and options so that the instance can be reused.
+        /// </summary>
+        public new void Reset() => base.Reset();
     }
 }
