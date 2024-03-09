@@ -8,6 +8,7 @@
 // names, trademarks, or service marks.
 
 using System;
+using System.Diagnostics;
 
 namespace Tetractic.CommandLine
 {
@@ -15,6 +16,7 @@ namespace Tetractic.CommandLine
     /// Represents a command parameter that stores a value or multiple values without respect to
     /// value type or whether it is variadic.
     /// </summary>
+    [DebuggerDisplay("Name = {" + nameof(Name) + "}")]
     public abstract class CommandParameter
     {
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is

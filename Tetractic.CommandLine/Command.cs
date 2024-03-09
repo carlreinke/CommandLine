@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -17,6 +18,7 @@ namespace Tetractic.CommandLine
     /// <summary>
     /// Represents a command.
     /// </summary>
+    [DebuggerDisplay("Name = {" + nameof(Name) + "}")]
     public partial class Command
     {
         private readonly List<Command> _subcommands = new List<Command>();
@@ -180,7 +182,7 @@ namespace Tetractic.CommandLine
         ///     same name.</exception>
         public CommandParameter<string> AddParameter(string name, string description)
         {
-            return AddParameter<string>(name, description, ParseString);
+            return AddParameter<string>(name, description, TryParseString);
         }
 
         /// <summary>
@@ -227,7 +229,7 @@ namespace Tetractic.CommandLine
         ///     same name.</exception>
         public VariadicCommandParameter<string> AddVariadicParameter(string name, string description)
         {
-            return AddVariadicParameter<string>(name, description, ParseString);
+            return AddVariadicParameter<string>(name, description, TryParseString);
         }
 
         /// <summary>
@@ -322,7 +324,7 @@ namespace Tetractic.CommandLine
         ///     same long name.</exception>
         public CommandOption<string> AddOption(char? shortName, string? longName, string parameterName, string description, bool inherited = false)
         {
-            return AddOption<string>(shortName, longName, parameterName, description, ParseString, inherited);
+            return AddOption<string>(shortName, longName, parameterName, description, TryParseString, inherited);
         }
 
         /// <summary>
@@ -428,7 +430,7 @@ namespace Tetractic.CommandLine
         ///     same long name.</exception>
         public VariadicCommandOption<string> AddVariadicOption(char? shortName, string? longName, string parameterName, string description, bool inherited = false)
         {
-            return AddVariadicOption<string>(shortName, longName, parameterName, description, ParseString, inherited);
+            return AddVariadicOption<string>(shortName, longName, parameterName, description, TryParseString, inherited);
         }
 
         /// <summary>
@@ -619,7 +621,7 @@ namespace Tetractic.CommandLine
 
         /// <exception cref="ArgumentNullException"><paramref name="text"/> is
         ///     <see langword="null"/>.</exception>
-        private static bool ParseString(string text, out string value)
+        private static bool TryParseString(string text, out string value)
         {
             if (text is null)
                 throw new ArgumentNullException(nameof(text));

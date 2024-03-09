@@ -8,12 +8,14 @@
 // names, trademarks, or service marks.
 
 using System;
+using System.Diagnostics;
 
 namespace Tetractic.CommandLine
 {
     /// <summary>
     /// Represents a command option.
     /// </summary>
+    [DebuggerDisplay("ShortName = {" + nameof(ShortName) + "?.ToString()}, LongName = {" + nameof(LongName) + "}")]
     public class CommandOption
     {
         /// <exception cref="ArgumentException"><paramref name="longName"/> is
