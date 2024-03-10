@@ -75,6 +75,11 @@ namespace Tetractic.CommandLine
         /// <value>The number of values that have been accepted into the command parameter.</value>
         public int Count { get; protected set; }
 
+        /// <summary>
+        /// Gets or sets the provider of completions for the parameter value.
+        /// </summary>
+        public ICompletionProvider? CompletionProvider { get; set; }
+
         internal bool ExpandWildcardsOnWindows { get; set; }
 
         /// <summary>

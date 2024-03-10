@@ -1,5 +1,21 @@
 ﻿override Tetractic.CommandLine.VariadicCommandOption.Variadic.get -> bool
 Tetractic.CommandLine.Command.AddVariadicOption(char? shortName, string? longName, string! description, bool inherited = false) -> Tetractic.CommandLine.VariadicCommandOption!
+Tetractic.CommandLine.CommandParameter.CompletionProvider.get -> Tetractic.CommandLine.ICompletionProvider?
+Tetractic.CommandLine.CommandParameter.CompletionProvider.set -> void
+Tetractic.CommandLine.Completion
+Tetractic.CommandLine.Completion.Completion() -> void
+Tetractic.CommandLine.Completion.Completion(string! text, string? description = null) -> void
+Tetractic.CommandLine.Completion.Description.get -> string?
+Tetractic.CommandLine.Completion.Text.get -> string!
+Tetractic.CommandLine.CompletionProvider
+Tetractic.CommandLine.CompletionProvider.Add(Tetractic.CommandLine.Completion completion) -> void
+Tetractic.CommandLine.CompletionProvider.CompletionProvider(System.StringComparison comparison) -> void
+Tetractic.CommandLine.CompletionProvider.GetCompletions(string! text) -> System.Collections.Generic.IEnumerable<Tetractic.CommandLine.Completion>!
+Tetractic.CommandLine.ICompletionProvider
+Tetractic.CommandLine.ICompletionProvider.GetCompletions(string! text) -> System.Collections.Generic.IEnumerable<Tetractic.CommandLine.Completion>!
+Tetractic.CommandLine.ParameterizedCommandOption.ParameterCompletionProvider.get -> Tetractic.CommandLine.ICompletionProvider?
+Tetractic.CommandLine.ParameterizedCommandOption.ParameterCompletionProvider.set -> void
+Tetractic.CommandLine.RootCommand.GetCompletions(string![]! args, int index) -> System.Collections.Generic.List<Tetractic.CommandLine.Completion>!
 Tetractic.CommandLine.RootCommand.Reset() -> void
 Tetractic.CommandLine.VariadicCommandOption
 Tetractic.CommandLine.VariadicCommandOption<T>.ValueList.ToArray() -> T[]!

@@ -8,8 +8,10 @@
 // names, trademarks, or service marks.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -20,6 +22,8 @@ namespace Tetractic.CommandLine
     /// </summary>
     public sealed class RootCommand : Command
     {
+        private const string _optionsTerminatorDescription = "Causes subsequent arguments to not be interpreted as options.";
+
         /// <summary>
         /// Initializes a new <see cref="RootCommand"/>.
         /// </summary>
@@ -249,8 +253,455 @@ namespace Tetractic.CommandLine
         }
 
         /// <summary>
+        /// Gets the completions for a specified command-line argument.
+        /// </summary>
+        /// <param name="args">The command-line arguments.</param>
+        /// <param name="index">The index of the element in <paramref name="args"/> to complete.
+        ///     </param>
+        /// <returns>The completions for the specified argument.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="args"/> is
+        ///     <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException">An element of <paramref name="args"/> is
+        ///     <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is less than zero
+        ///     or is greater than or equal to the length of <paramref name="args"/>.</exception>
+        public List<Completion> GetCompletions(string[] args, int index)
+        {
+            if (args is null)
+                throw new ArgumentNullException(nameof(args));
+            if (index < 0 || index >= args.Length)
+                throw new ArgumentOutOfRangeException(nameof(index));
+
+            var completions = new List<Completion>();
+
+            var parser = new ArgParser(this);
+            IEnumerator<CommandParameter>? parameters = null;
+
+            for (int i = 0; ; ++i)
+            {
+                string arg = args[i];
+
+                if (arg is null)
+                    throw new ArgumentNullException(nameof(args), "Array element cannot be null.");
+
+                var result = parser.Parse(arg);
+            next:
+                switch (result.Kind)
+                {
+                    case ArgParser.ResultKind.UnrecognizedShortOption:
+                    {
+                        if (parser.HasPendingShortOptions)
+                        {
+                            result = parser.ParseShortOption();
+                            goto next;
+                        }
+
+                        if (i == index)
+                        {
+                            // No completions.
+                            return completions;
+                        }
+                        break;
+                    }
+                    case ArgParser.ResultKind.ShortOption:
+                    {
+                        var option = result.Option!;
+                        string? value = result.Value;
+
+                        if (option is ParameterizedCommandOption parameterizedOption)
+                        {
+                            if (value is null && parameterizedOption.ParameterIsOptional)
+                            {
+                                if (i == index && !parser.HasPendingShortOptions)
+                                {
+                                    if (option.HelpVisibility != HelpVisibility.Never)
+                                    {
+                                        completions.Add(new Completion(arg, option.Description));
+                                        completions.Add(new Completion(arg + "=", option.Description));
+                                    }
+
+                                    return completions;
+                                }
+                            }
+                            else
+                            {
+                                if (value is null)
+                                {
+                                    if (parser.HasPendingShortOptions)
+                                    {
+                                        result = parser.ParseShortOption();
+                                        goto next;
+                                    }
+
+                                    if (i == index)
+                                    {
+                                        if (option.HelpVisibility != HelpVisibility.Never)
+                                            completions.Add(new Completion(arg + "=", option.Description));
+
+                                        return completions;
+                                    }
+
+                                    if (i + 1 == index)
+                                    {
+                                        AddOptionParameterCompletions(completions, parameterizedOption, args[index]);
+
+                                        return completions;
+                                    }
+
+                                    i += 1;
+                                }
+                                else
+                                {
+                                    if (i == index)
+                                    {
+                                        Debug.Assert(!parser.HasPendingShortOptions);
+
+                                        AddOptionParameterCompletionsWithValue(completions, parameterizedOption, arg, value);
+
+                                        return completions;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (i == index && !parser.HasPendingShortOptions)
+                            {
+                                if (value is null && option.HelpVisibility != HelpVisibility.Never)
+                                    completions.Add(new Completion(arg, option.Description));
+
+                                return completions;
+                            }
+                        }
+
+                        if (parser.HasPendingShortOptions)
+                        {
+                            result = parser.ParseShortOption();
+                            goto next;
+                        }
+                        break;
+                    }
+                    case ArgParser.ResultKind.UnrecognizedLongOption:
+                    {
+                        if (i == index)
+                        {
+                            AddOptionLongNameCompletions(completions, parser.CommandOptions, result.LongName!);
+
+                            return completions;
+                        }
+                        break;
+                    }
+                    case ArgParser.ResultKind.LongOption:
+                    {
+                        var option = result.Option!;
+                        string? value = result.Value;
+
+                        if (option is ParameterizedCommandOption parameterizedOption)
+                        {
+                            if (value is null && parameterizedOption.ParameterIsOptional)
+                            {
+                                if (i == index)
+                                {
+                                    AddOptionLongNameCompletions(completions, parser.CommandOptions, result.LongName!);
+
+                                    return completions;
+                                }
+                            }
+                            else
+                            {
+                                if (value is null)
+                                {
+                                    if (i == index)
+                                    {
+                                        AddOptionLongNameCompletions(completions, parser.CommandOptions, result.LongName!);
+
+                                        return completions;
+                                    }
+
+                                    if (i + 1 == index)
+                                    {
+                                        AddOptionParameterCompletions(completions, parameterizedOption, args[index]);
+
+                                        return completions;
+                                    }
+
+                                    i += 1;
+                                }
+                                else
+                                {
+                                    if (i == index)
+                                    {
+                                        AddOptionParameterCompletionsWithValue(completions, parameterizedOption, arg, value);
+
+                                        return completions;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (i == index)
+                            {
+                                if (value is null)
+                                    AddOptionLongNameCompletions(completions, parser.CommandOptions, result.LongName!);
+
+                                return completions;
+                            }
+                        }
+                        break;
+                    }
+                    case ArgParser.ResultKind.OptionsTerminator:
+                    {
+                        if (i == index)
+                        {
+                            completions.Add(new Completion(arg, _optionsTerminatorDescription));
+
+                            AddOptionLongNameCompletions(completions, parser.CommandOptions, "");
+
+                            return completions;
+                        }
+                        break;
+                    }
+                    case ArgParser.ResultKind.Subcommand:
+                    {
+                        if (i == index)
+                        {
+                            var parentCommand = parser.Command.Parent!;
+
+                            AddSubcommandCompletions(completions, parentCommand.Subcommands, arg);
+
+                            var parentParameters = parentCommand.Parameters;
+                            if (parentParameters.Count > 0)
+                                AddParameterCompletions(completions, parentParameters[0], arg, parser.OptionsTerminated);
+
+                            return completions;
+                        }
+                        break;
+                    }
+                    case ArgParser.ResultKind.Parameter:
+                    {
+                        if (parameters is null)
+                        {
+                            if (i == index)
+                            {
+                                AddSubcommandCompletions(completions, parser.Command.Subcommands, arg);
+
+                                if (arg == "-" && !parser.OptionsTerminated)
+                                    AddOptionCompletions(completions, parser.CommandOptions);
+                            }
+
+                            parameters = parser.Command.Parameters.GetEnumerator();
+                            if (!parameters.MoveNext())
+                            {
+                                if (i == index)
+                                    return completions;
+
+                                parameters = SpeculatedParameterEnumerator.Instance;
+                            }
+                        }
+                        else
+                        {
+                            if (i == index)
+                            {
+                                if (arg == "-" && !parser.OptionsTerminated)
+                                    AddOptionCompletions(completions, parser.CommandOptions);
+                            }
+
+                            if (!parameters.Current.Variadic && !parameters.MoveNext())
+                            {
+                                if (i == index)
+                                    return completions;
+
+                                parameters = SpeculatedParameterEnumerator.Instance;
+                            }
+                        }
+
+                        var parameter = parameters.Current;
+
+                        if (i == index)
+                        {
+                            if (arg != "-" || parser.OptionsTerminated)
+                                AddParameterCompletions(completions, parameter, arg, parser.OptionsTerminated);
+
+                            return completions;
+                        }
+                        break;
+                    }
+                    default:
+                    {
+                        Debug.Fail("Unreachable.");
+                        break;
+                    }
+                }
+            }
+
+            static void AddOptionCompletions(List<Completion> completions, List<CommandOption> options)
+            {
+                completions.Add(new Completion("--", _optionsTerminatorDescription));
+
+                foreach (var option in options)
+                {
+                    if (option.HelpVisibility == HelpVisibility.Never)
+                        continue;
+
+                    if (option.LongName is null)
+                    {
+                        if (option is ParameterizedCommandOption parameterizedOption)
+                        {
+                            if (parameterizedOption.ParameterIsOptional)
+                                completions.Add(new Completion($"-{option.ShortName}", option.Description));
+
+                            completions.Add(new Completion($"-{option.ShortName}=", option.Description));
+                        }
+                        else
+                        {
+                            completions.Add(new Completion($"-{option.ShortName}", option.Description));
+                        }
+                    }
+                    else
+                    {
+                        if (option is ParameterizedCommandOption parameterizedOption)
+                        {
+                            if (parameterizedOption.ParameterIsOptional)
+                                completions.Add(new Completion($"--{option.LongName}", option.Description));
+
+                            completions.Add(new Completion($"--{option.LongName}=", option.Description));
+                        }
+                        else
+                        {
+                            completions.Add(new Completion($"--{option.LongName}", option.Description));
+                        }
+                    }
+                }
+            }
+
+            static void AddOptionLongNameCompletions(List<Completion> completions, List<CommandOption> options, string name)
+            {
+                foreach (var option in options)
+                {
+                    if (option.HelpVisibility == HelpVisibility.Never)
+                        continue;
+
+                    if (option.LongName is null)
+                        continue;
+
+                    if (!option.LongName.StartsWith(name, StringComparison.InvariantCulture))
+                        continue;
+
+                    if (option is ParameterizedCommandOption parameterizedOption)
+                    {
+                        if (parameterizedOption.ParameterIsOptional)
+                            completions.Add(new Completion("--" + option.LongName, option.Description));
+
+                        completions.Add(new Completion("--" + option.LongName + "=", option.Description));
+                    }
+                    else
+                    {
+                        completions.Add(new Completion("--" + option.LongName, option.Description));
+                    }
+                }
+            }
+
+            static void AddOptionParameterCompletions(List<Completion> completions, ParameterizedCommandOption parameterizedOption, string text)
+            {
+                var parameterCompletionProvider = parameterizedOption.ParameterCompletionProvider;
+                var parameterCompletions = parameterCompletionProvider?.GetCompletions(text);
+                if (parameterCompletions != null)
+                    completions.AddRange(parameterCompletions);
+            }
+
+            static void AddOptionParameterCompletionsWithValue(List<Completion> completions, ParameterizedCommandOption parameterizedOption, string text, string value)
+            {
+                var parameterCompletionProvider = parameterizedOption.ParameterCompletionProvider;
+                var parameterCompletions = parameterCompletionProvider?.GetCompletions(value);
+                if (parameterCompletions != null)
+                {
+                    string prefix = text.Substring(0, text.Length - value.Length);
+                    foreach (var completion in parameterCompletions)
+                        completions.Add(new Completion(prefix + completion.Text, completion.Description));
+                }
+            }
+
+            static void AddSubcommandCompletions(List<Completion> completions, CommandList subcommands, string name)
+            {
+                foreach (var command in subcommands)
+                {
+                    if (command.HelpVisibility == HelpVisibility.Never)
+                        continue;
+
+                    if (!command.Name.StartsWith(name, StringComparison.InvariantCulture))
+                        continue;
+
+                    completions.Add(new Completion(command.Name, command.Description));
+                }
+            }
+
+            static void AddParameterCompletions(List<Completion> completions, CommandParameter parameter, string text, bool optionsTerminated)
+            {
+                var parameterCompletionProvider = parameter.CompletionProvider;
+                var parameterCompletions = parameterCompletionProvider?.GetCompletions(text);
+                if (parameterCompletions != null)
+                {
+                    if (optionsTerminated)
+                    {
+                        completions.AddRange(parameterCompletions);
+                        return;
+                    }
+
+                    bool hasOptionAmbiguity = false;
+                    int optionsTerminatorIndex = completions.Count;
+
+                    foreach (var completion in parameterCompletions)
+                    {
+                        if (completion.Text.Length > 0 && completion.Text[0] == '-')
+                            hasOptionAmbiguity = true;
+                        else
+                            completions.Add(completion);
+                    }
+
+                    if (hasOptionAmbiguity && text.Length == 0)
+                        completions.Insert(optionsTerminatorIndex, new Completion("--", _optionsTerminatorDescription));
+                }
+            }
+        }
+
+        /// <summary>
         /// Resets the parameters and options so that the instance can be reused.
         /// </summary>
         public new void Reset() => base.Reset();
+
+        private sealed class SpeculatedParameterEnumerator : IEnumerator<CommandParameter>
+        {
+            public static readonly SpeculatedParameterEnumerator Instance = new SpeculatedParameterEnumerator();
+
+            private SpeculatedParameterEnumerator()
+            {
+            }
+
+            public CommandParameter Current { get; } = new VariadicCommandParameter<object>("", "", TryParse);
+
+            [ExcludeFromCodeCoverage]
+            object IEnumerator.Current => Current;
+
+            [ExcludeFromCodeCoverage]
+            public void Dispose()
+            {
+            }
+
+            [ExcludeFromCodeCoverage]
+            public bool MoveNext() => false;
+
+            [ExcludeFromCodeCoverage]
+            public void Reset()
+            {
+            }
+
+            [ExcludeFromCodeCoverage]
+            private static bool TryParse(string text, [MaybeNullWhen(false)] out object value)
+            {
+                value = null;
+                return false;
+            }
+        }
     }
 }

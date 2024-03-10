@@ -8,6 +8,7 @@
 // names, trademarks, or service marks.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using Xunit;
@@ -987,6 +988,489 @@ namespace Tetractic.CommandLine.Tests
         }
 
         [Fact]
+        public static void GetCompletions_ArgsIsNull_ThrowArgumentNullException()
+        {
+            var rootCommand = new RootCommand("test");
+
+            SetThrowingHelpHandlerRecursive(rootCommand);
+
+            var ex = Assert.Throws<ArgumentNullException>(() => rootCommand.GetCompletions(null!, 0));
+
+            Assert.Equal("args", ex.ParamName);
+        }
+
+        [Fact]
+        public static void GetCompletions_ArgsElementIsNull_ThrowsArgumentNullException()
+        {
+            var rootCommand = new RootCommand("test");
+
+            SetThrowingHelpHandlerRecursive(rootCommand);
+
+            var ex = Assert.Throws<ArgumentNullException>(() => rootCommand.GetCompletions(new string[] { null! }, 0));
+
+            Assert.Equal("args", ex.ParamName);
+        }
+
+        [Theory]
+        [InlineData(new string[0], -1)]
+        [InlineData(new string[0], 0)]
+        public static void GetCompletions_IndexIsOutOfRange_ThrowsArgumentOutOfRangeException(string[] args, int index)
+        {
+            var rootCommand = new RootCommand("test");
+
+            SetThrowingHelpHandlerRecursive(rootCommand);
+
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => rootCommand.GetCompletions(args, index));
+
+            Assert.Equal("index", ex.ParamName);
+        }
+
+        [Theory]
+        [InlineData(new[] { "-e" }, 0, new string[0])]
+        [InlineData(new[] { "--echo" }, 0, new string[0])]
+        [InlineData(new[] { "--alpha" }, 0, new[] { "--alpha-m", "--alpha-mp=", "--alpha-mo", "--alpha-mo=" })]
+        [InlineData(new[] { "--b" }, 0, new[] { "--bravo" })]
+        public static void GetCompletions_CompleteUnrecognizedOption_ReturnsExpectedCompletions(string[] args, int index, string[] expectedCompletions)
+        {
+            var rootCommand = new RootCommand("test");
+
+            _ = rootCommand.AddOption('a', "alpha-m", "");
+
+            _ = rootCommand.AddOption(null, "alpha-mp", "value", "");
+
+            var optionMO = rootCommand.AddOption(null, "alpha-mo", "value", "");
+            optionMO.SetOptionalParameterDefaultValue("none");
+
+            _ = rootCommand.AddOption('b', "bravo", "");
+
+            _ = rootCommand.AddOption('c', null, "");
+
+            _ = rootCommand.AddOption(null, "delta", "");
+
+            var completions = rootCommand.GetCompletions(args, index);
+
+            Assert.Equal(expectedCompletions, GetTexts(completions));
+        }
+
+        [Theory]
+        [InlineData(new[] { "-a" }, 0, new[] { "-a" })]
+        [InlineData(new[] { "-a=" }, 0, new string[0])]
+        [InlineData(new[] { "--alpha" }, 0, new[] { "--alpha", "--alpha-mp=", "--alpha-mo", "--alpha-mo=" })]
+        [InlineData(new[] { "--alpha=" }, 0, new string[0])]
+        [InlineData(new[] { "--bravo" }, 0, new[] { "--bravo" })]
+        public static void GetCompletions_CompleteUnparameterizedOption_ReturnsExpectedCompletions(string[] args, int index, string[] expectedCompletions)
+        {
+            var rootCommand = new RootCommand("test");
+
+            _ = rootCommand.AddOption('a', "alpha", "");
+
+            _ = rootCommand.AddOption(null, "alpha-mp", "value", "");
+
+            var optionMO = rootCommand.AddOption(null, "alpha-mo", "value", "");
+            optionMO.SetOptionalParameterDefaultValue("none");
+
+            _ = rootCommand.AddOption('b', "bravo", "");
+
+            _ = rootCommand.AddOption('c', null, "");
+
+            _ = rootCommand.AddOption(null, "delta", "");
+
+            var completions = rootCommand.GetCompletions(args, index);
+
+            Assert.Equal(expectedCompletions, GetTexts(completions));
+        }
+
+        [Theory]
+        [InlineData(new[] { "-a" }, 0, new[] { "-a=" })]
+        [InlineData(new[] { "-a", "1" }, 1, new[] { "123" })]
+        [InlineData(new[] { "-a=" }, 0, new[] { "-a=123", "-a=456" })]
+        [InlineData(new[] { "-a=1" }, 0, new[] { "-a=123" })]
+        [InlineData(new[] { "--alpha" }, 0, new[] { "--alpha=", "--alpha-m", "--alpha-mo", "--alpha-mo=" })]
+        [InlineData(new[] { "--alpha", "1" }, 1, new[] { "123" })]
+        [InlineData(new[] { "--alpha=" }, 0, new[] { "--alpha=123", "--alpha=456" })]
+        [InlineData(new[] { "--alpha=1" }, 0, new[] { "--alpha=123" })]
+        [InlineData(new[] { "--bravo" }, 0, new[] { "--bravo=" })]
+        [InlineData(new[] { "--bravo", "1" }, 1, new string[0])]
+        [InlineData(new[] { "--bravo=" }, 0, new string[0])]
+        [InlineData(new[] { "--bravo=1" }, 0, new string[0])]
+        public static void GetCompletions_CompleteParameterizedOption_ReturnsExpectedCompletions(string[] args, int index, string[] expectedCompletions)
+        {
+            var rootCommand = new RootCommand("test");
+
+            var optionMP = rootCommand.AddOption('a', "alpha", "value", "");
+            optionMP.ParameterCompletionProvider = new TestCompletionProvider(new[] { "123", "456" });
+
+            _ = rootCommand.AddOption(null, "alpha-m", "");
+
+            var optionMO = rootCommand.AddOption(null, "alpha-mo", "value", "");
+            optionMO.SetOptionalParameterDefaultValue("none");
+
+            _ = rootCommand.AddOption('b', "bravo", "value", "");
+
+            _ = rootCommand.AddOption('c', null, "");
+
+            _ = rootCommand.AddOption(null, "delta", "");
+
+            var completions = rootCommand.GetCompletions(args, index);
+
+            Assert.Equal(expectedCompletions, GetTexts(completions));
+        }
+
+        [Theory]
+        [InlineData(new[] { "-a" }, 0, new[] { "-a", "-a=" })]
+        [InlineData(new[] { "-a", "1" }, 1, new string[0])]
+        [InlineData(new[] { "-a=" }, 0, new[] { "-a=123", "-a=456" })]
+        [InlineData(new[] { "-a=1" }, 0, new[] { "-a=123" })]
+        [InlineData(new[] { "--alpha" }, 0, new[] { "--alpha", "--alpha=", "--alpha-m", "--alpha-mp=" })]
+        [InlineData(new[] { "--alpha", "1" }, 1, new string[0])]
+        [InlineData(new[] { "--alpha=" }, 0, new[] { "--alpha=123", "--alpha=456" })]
+        [InlineData(new[] { "--alpha=1" }, 0, new[] { "--alpha=123" })]
+        [InlineData(new[] { "--bravo" }, 0, new[] { "--bravo", "--bravo=" })]
+        [InlineData(new[] { "--bravo", "1" }, 1, new string[0])]
+        [InlineData(new[] { "--bravo=" }, 0, new string[0])]
+        [InlineData(new[] { "--bravo=1" }, 0, new string[0])]
+        public static void GetCompletions_CompleteParameterizedOptionWithOptionalParameter_ReturnsExpectedCompletions(string[] args, int index, string[] expectedCompletions)
+        {
+            var rootCommand = new RootCommand("test");
+
+            var optionMO = rootCommand.AddOption('a', "alpha", "value", "");
+            optionMO.SetOptionalParameterDefaultValue("none");
+            optionMO.ParameterCompletionProvider = new TestCompletionProvider(new[] { "123", "456" });
+
+            _ = rootCommand.AddOption(null, "alpha-m", "");
+
+            _ = rootCommand.AddOption(null, "alpha-mp", "value", "");
+
+            var optionB = rootCommand.AddOption('b', "bravo", "value", "");
+            optionB.SetOptionalParameterDefaultValue("none");
+
+            _ = rootCommand.AddOption('c', null, "");
+
+            _ = rootCommand.AddOption(null, "delta", "");
+
+            var completions = rootCommand.GetCompletions(args, index);
+
+            Assert.Equal(expectedCompletions, GetTexts(completions));
+        }
+
+        [Theory]
+        [InlineData(new[] { "--" }, 0, new[] { "--", "--alpha-m", "--alpha-mp=", "--alpha-mo", "--alpha-mo=", "--bravo" })]
+        [InlineData(new[] { "--", "--" }, 1, new string[0])]
+        public static void GetCompletions_CompleteOptionsTerminator_ReturnsExpectedCompletions(string[] args, int index, string[] expectedCompletions)
+        {
+            var rootCommand = new RootCommand("test");
+
+            _ = rootCommand.AddOption('a', "alpha-m", "");
+
+            _ = rootCommand.AddOption(null, "alpha-mp", "value", "");
+
+            var optionMO = rootCommand.AddOption(null, "alpha-mo", "value", "");
+            optionMO.SetOptionalParameterDefaultValue("none");
+
+            _ = rootCommand.AddOption(null, "bravo", "");
+
+            _ = rootCommand.AddOption('c', null, "");
+
+            var completions = rootCommand.GetCompletions(args, index);
+
+            Assert.Equal(expectedCompletions, GetTexts(completions));
+        }
+
+        [Theory]
+        [InlineData(new[] { "delta" }, 0, new[] { "delta", "delta-echo", "delta-sierra" })]
+        public static void GetCompletions_CompleteSubcommand_ReturnsExpectedCompletions(string[] args, int index, string[] expectedCompletions)
+        {
+            var rootCommand = new RootCommand("test");
+
+            _ = rootCommand.AddSubcommand("delta", "");
+
+            _ = rootCommand.AddSubcommand("delta-echo", "");
+
+            _ = rootCommand.AddOption('a', "alpha", "");
+
+            var parameterS = rootCommand.AddParameter("sierra", "");
+            parameterS.CompletionProvider = new TestCompletionProvider(new[] { "delta-sierra", "echo-sierra" });
+
+            var completions = rootCommand.GetCompletions(args, index);
+
+            Assert.Equal(expectedCompletions, GetTexts(completions));
+        }
+
+        [Theory]
+        [InlineData(new[] { "delta" }, 0, new[] { "delta", "tango" })]
+        [InlineData(new[] { "--", "delta" }, 1, new[] { "delta", "-sierra", "tango" })]
+        public static void GetCompletions_CompleteSubcommandWithOptionsTermination(string[] args, int index, string[] expectedCompletions)
+        {
+            var rootCommand = new RootCommand("test");
+
+            _ = rootCommand.AddSubcommand("delta", "");
+
+            var parameterS = rootCommand.AddParameter("sierra", "");
+            parameterS.CompletionProvider = new IndiscriminateCompletionProvider(new[] { "-sierra", "tango" });
+
+            var completions = rootCommand.GetCompletions(args, index);
+
+            Assert.Equal(expectedCompletions, GetTexts(completions));
+        }
+
+        [Theory]
+        [InlineData(new[] { "a" }, 0, new string[0])]
+        [InlineData(new[] { "d" }, 0, new[] { "delta", "delta-sierra" })]
+        [InlineData(new[] { "-" }, 0, new[] { "--", "--alpha-m", "--alpha-mp=", "--alpha-mo", "--alpha-mo=", "-b", "-c=", "-d", "-d=" })]
+        [InlineData(new[] { "x", "delta" }, 1, new[] { "delta-tango" })]
+        [InlineData(new[] { "x", "-" }, 1, new[] { "--", "--alpha-m", "--alpha-mp=", "--alpha-mo", "--alpha-mo=", "-b", "-c=", "-d", "-d=" })]
+        [InlineData(new[] { "x", "x", "delta" }, 2, new string[0])]
+        public static void GetCompletions_CompleteParameter_ReturnsExpectedCompletions(string[] args, int index, string[] expectedCompletions)
+        {
+            var rootCommand = new RootCommand("test");
+
+            _ = rootCommand.AddSubcommand("delta", "");
+
+            _ = rootCommand.AddOption('a', "alpha-m", "");
+
+            _ = rootCommand.AddOption(null, "alpha-mp", "value", "");
+
+            var optionMO = rootCommand.AddOption(null, "alpha-mo", "value", "");
+            optionMO.SetOptionalParameterDefaultValue("none");
+
+            _ = rootCommand.AddOption('b', null, "");
+
+            _ = rootCommand.AddOption('c', null, "value", "");
+
+            var optionMO2 = rootCommand.AddOption('d', null, "value", "");
+            optionMO2.SetOptionalParameterDefaultValue("none");
+
+            var parameterS = rootCommand.AddParameter("sierra", "");
+            parameterS.CompletionProvider = new TestCompletionProvider(new[] { "delta-sierra", "echo-sierra" });
+
+            var parameterT = rootCommand.AddParameter("tango", "");
+            parameterT.CompletionProvider = new TestCompletionProvider(new[] { "delta-tango" });
+
+            var completions = rootCommand.GetCompletions(args, index);
+
+            Assert.Equal(expectedCompletions, GetTexts(completions));
+        }
+
+        [Theory]
+        [InlineData(new[] { "a" }, 0, new string[0])]
+        [InlineData(new[] { "d" }, 0, new[] { "delta", "delta-sierra" })]
+        [InlineData(new[] { "-" }, 0, new[] { "--", "--alpha-m", "--alpha-mp=", "--alpha-mo", "--alpha-mo=", "-b", "-c=", "-d", "-d=" })]
+        [InlineData(new[] { "x", "d" }, 1, new[] { "delta-sierra" })]
+        [InlineData(new[] { "x", "-" }, 1, new[] { "--", "--alpha-m", "--alpha-mp=", "--alpha-mo", "--alpha-mo=", "-b", "-c=", "-d", "-d=" })]
+        public static void GetCompletions_CompleteVariadicParameter_ReturnsExpectedCompletions(string[] args, int index, string[] expectedCompletions)
+        {
+            var rootCommand = new RootCommand("test");
+
+            _ = rootCommand.AddSubcommand("delta", "");
+
+            _ = rootCommand.AddOption('a', "alpha-m", "");
+
+            _ = rootCommand.AddOption(null, "alpha-mp", "value", "");
+
+            var optionMO = rootCommand.AddOption(null, "alpha-mo", "value", "");
+            optionMO.SetOptionalParameterDefaultValue("none");
+
+            _ = rootCommand.AddOption('b', null, "");
+
+            _ = rootCommand.AddOption('c', null, "value", "");
+
+            var optionMO2 = rootCommand.AddOption('d', null, "value", "");
+            optionMO2.SetOptionalParameterDefaultValue("none");
+
+            var parameterS = rootCommand.AddVariadicParameter("sierra", "");
+            parameterS.CompletionProvider = new TestCompletionProvider(new[] { "delta-sierra", "echo-sierra" });
+
+            var completions = rootCommand.GetCompletions(args, index);
+
+            Assert.Equal(expectedCompletions, GetTexts(completions));
+        }
+
+        [Theory]
+        [InlineData(new[] { "" }, 0, new[] { "--", "tango" })]
+        [InlineData(new[] { "-" }, 0, new[] { "--" })]
+        [InlineData(new[] { "--", "" }, 1, new[] { "-sierra", "tango" })]
+        [InlineData(new[] { "--", "-" }, 1, new[] { "-sierra" })]
+        public static void GetCompletions_CompleteParameterWithOptionsTermination_ReturnsExpectedCompletions(string[] args, int index, string[] expectedCompletions)
+        {
+            var rootCommand = new RootCommand("test");
+
+            var parameterS = rootCommand.AddParameter("sierra", "");
+            parameterS.CompletionProvider = new TestCompletionProvider(new[] { "-sierra", "tango" });
+
+            var completions = rootCommand.GetCompletions(args, index);
+
+            Assert.Equal(expectedCompletions, GetTexts(completions));
+        }
+
+        [Theory]
+        [InlineData(new[] { "-a", "-" }, 1, new[] { "--", "--bravo=" })]
+        [InlineData(new[] { "-ab" }, 0, new[] { "-ab=" })]
+        [InlineData(new[] { "--alpha", "-" }, 1, new[] { "--", "--bravo=" })]
+        public static void GetCompletions_CompleteAfterUnrecognizedOption_ReturnsExpectedCompletions(string[] args, int index, string[] expectedCompletions)
+        {
+            var rootCommand = new RootCommand("test");
+
+            _ = rootCommand.AddOption('b', "bravo", "value", "");
+
+            var completions = rootCommand.GetCompletions(args, index);
+
+            Assert.Equal(expectedCompletions, GetTexts(completions));
+        }
+
+        [Theory]
+        [InlineData(new[] { "-aa" }, 0, new[] { "-aa" })]
+        [InlineData(new[] { "-ab" }, 0, new[] { "-ab=" })]
+        [InlineData(new[] { "-a", "-" }, 1, new[] { "--", "--alpha", "-b=" })]
+        [InlineData(new[] { "-aa", "-" }, 1, new[] { "--", "--alpha", "-b=" })]
+        [InlineData(new[] { "--alpha", "-" }, 1, new[] { "--", "--alpha", "-b=" })]
+        public static void GetCompletions_CompleteAfterUnparameterizedOption_ReturnsExpectedCompletions(string[] args, int index, string[] expectedCompletions)
+        {
+            var rootCommand = new RootCommand("test");
+
+            _ = rootCommand.AddOption('a', "alpha", "");
+
+            _ = rootCommand.AddOption('b', null, "value", "");
+
+            var completions = rootCommand.GetCompletions(args, index);
+
+            Assert.Equal(expectedCompletions, GetTexts(completions));
+        }
+
+        [Theory]
+        [InlineData(new[] { "-a", "123", "-" }, 2, new[] { "--", "--alpha=" })]
+        [InlineData(new[] { "-a=123", "-" }, 1, new[] { "--", "--alpha=" })]
+        [InlineData(new[] { "--alpha", "123", "-" }, 2, new[] { "--", "--alpha=" })]
+        [InlineData(new[] { "--alpha=123", "-" }, 1, new[] { "--", "--alpha=" })]
+        public static void GetCompletions_CompleteAfterParameterizedOption_ReturnsExpectedCompletions(string[] args, int index, string[] expectedCompletions)
+        {
+            var rootCommand = new RootCommand("test");
+
+            _ = rootCommand.AddOption('a', "alpha", "value", "");
+
+            var completions = rootCommand.GetCompletions(args, index);
+
+            Assert.Equal(expectedCompletions, GetTexts(completions));
+        }
+
+        [Theory]
+        [InlineData(new[] { "-aa" }, 0, new[] { "-aa=" })]
+        public static void GetCompletions_CompleteAfterParameterizedOptionWithoutValue_ReturnsExpectedCompletions(string[] args, int index, string[] expectedCompletions)
+        {
+            var rootCommand = new RootCommand("test");
+
+            _ = rootCommand.AddOption('a', null, "value", "");
+
+            var completions = rootCommand.GetCompletions(args, index);
+
+            Assert.Equal(expectedCompletions, GetTexts(completions));
+        }
+
+        [Theory]
+        [InlineData(new[] { "delta", "" }, 1, new[] { "456" })]
+        [InlineData(new[] { "delta", "-" }, 1, new[] { "--", "-b" })]
+        public static void GetCompletions_CompleteAfterSubcommand_ReturnsExpectedCompletions(string[] args, int index, string[] expectedCompletions)
+        {
+            var rootCommand = new RootCommand("test");
+
+            _ = rootCommand.AddOption('a', null, "");
+
+            var parameterS = rootCommand.AddParameter("sierra", "");
+            parameterS.CompletionProvider = new TestCompletionProvider(new[] { "123" });
+
+            var commandD = rootCommand.AddSubcommand("delta", "");
+
+            _ = commandD.AddOption('b', null, "");
+
+            var parameterT = commandD.AddParameter("tango", "");
+            parameterT.CompletionProvider = new TestCompletionProvider(new[] { "456" });
+
+            var completions = rootCommand.GetCompletions(args, index);
+
+            Assert.Equal(expectedCompletions, GetTexts(completions));
+        }
+
+        [Theory]
+        [InlineData(new[] { "x", "" }, 1, new string[0])]
+        [InlineData(new[] { "x", "-" }, 1, new[] { "--", "-a" })]
+        [InlineData(new[] { "x", "x", "" }, 2, new string[0])]
+        [InlineData(new[] { "x", "x", "-" }, 2, new[] { "--", "-a" })]
+        public static void GetCompletions_AfterParameter_ReturnsExpectedCompletions(string[] args, int index, string[] expectedCompletions)
+        {
+            var rootCommand = new RootCommand("test");
+
+            _ = rootCommand.AddOption('a', null, "");
+
+            var parameterS = rootCommand.AddParameter("sierra", "");
+            parameterS.CompletionProvider = new TestCompletionProvider(new[] { "123" });
+
+            var completions = rootCommand.GetCompletions(args, index);
+
+            Assert.Equal(expectedCompletions, GetTexts(completions));
+        }
+
+        [Theory]
+        [InlineData(new[] { "" }, 0, new string[0])]
+        [InlineData(new[] { "-" }, 0, new[] { "--", "-a" })]
+        [InlineData(new[] { "x", "" }, 1, new string[0])]
+        [InlineData(new[] { "x", "-" }, 1, new[] { "--", "-a" })]
+        public static void GetCompletions_NoParameter_ReturnsExpectedCompletions(string[] args, int index, string[] expectedCompletions)
+        {
+            var rootCommand = new RootCommand("test");
+
+            _ = rootCommand.AddOption('a', null, "");
+
+            var completions = rootCommand.GetCompletions(args, index);
+
+            Assert.Equal(expectedCompletions, GetTexts(completions));
+        }
+
+        [Theory]
+        [InlineData(new[] { "" }, 0, new[] { "echo", "foxtrot" })]
+        [InlineData(new[] { "delta" }, 0, new string[0])]
+        public static void GetCompletions_NeverVisibleSubcommand_ReturnsExpectedCompletions(string[] args, int index, string[] expectedCompletions)
+        {
+            var rootCommand = new RootCommand("test");
+
+            var commandD = rootCommand.AddSubcommand("delta", "");
+            commandD.HelpVisibility = HelpVisibility.Never;
+
+            var commandE = rootCommand.AddSubcommand("echo", "");
+            commandE.HelpVisibility = HelpVisibility.Verbose;
+
+            _ = rootCommand.AddSubcommand("foxtrot", "");
+
+            var completions = rootCommand.GetCompletions(args, index);
+
+            Assert.Equal(expectedCompletions, GetTexts(completions));
+        }
+
+        [Theory]
+        [InlineData(new[] { "-" }, 0, new[] { "--", "--beta", "--charlie" })]
+        [InlineData(new[] { "-a" }, 0, new string[0])]
+        [InlineData(new[] { "--" }, 0, new[] { "--", "--beta", "--charlie" })]
+        [InlineData(new[] { "--alpha" }, 0, new string[0])]
+        public static void GetCompletions_NeverVisibleOption_ReturnsExpectedCompletions(string[] args, int index, string[] expectedCompletions)
+        {
+            var rootCommand = new RootCommand("test");
+
+            var optionA = rootCommand.AddOption('a', "alpha", "");
+            optionA.HelpVisibility = HelpVisibility.Never;
+
+            var optionB = rootCommand.AddOption('b', "beta", "");
+            optionB.HelpVisibility = HelpVisibility.Verbose;
+
+            _ = rootCommand.AddOption('c', "charlie", "");
+
+            var completions = rootCommand.GetCompletions(args, index);
+
+            Assert.Equal(expectedCompletions, GetTexts(completions));
+        }
+
+        // TODO: GetCompletions_NeverVisibleParameterizedOption_ReturnsExpectedCompletions
+
+        // TODO: GetCompletions_NeverVisibleParameterizedOptionWithOptionalParameter_ReturnsExpectedCompletions
+
+        [Fact]
         public static void Reset_Unused_DoesNothing()
         {
             var rootCommand = new RootCommand("test");
@@ -1112,6 +1596,49 @@ namespace Tetractic.CommandLine.Tests
                         return subcommand;
 
                 throw new InvalidOperationException("No such command.");
+            }
+        }
+
+        private static IEnumerable<string> GetTexts(IEnumerable<Completion> completions)
+        {
+            foreach (var completion in completions)
+                yield return completion.Text;
+        }
+
+        private sealed class TestCompletionProvider : ICompletionProvider
+        {
+            private readonly string[] _completions;
+
+            public TestCompletionProvider(string[] completions)
+            {
+                _completions = completions;
+            }
+
+            public IEnumerable<Completion> GetCompletions(string text)
+            {
+                foreach (string completion in _completions)
+                { 
+                    if (!completion.StartsWith(text, StringComparison.InvariantCulture))
+                        continue;
+
+                    yield return new Completion(completion);
+                }
+            }
+        }
+
+        private sealed class IndiscriminateCompletionProvider : ICompletionProvider
+        {
+            private readonly string[] _completions;
+
+            public IndiscriminateCompletionProvider(string[] completions)
+            {
+                _completions = completions;
+            }
+
+            public IEnumerable<Completion> GetCompletions(string text)
+            {
+                foreach (string completion in _completions)
+                    yield return new Completion(completion);
             }
         }
     }

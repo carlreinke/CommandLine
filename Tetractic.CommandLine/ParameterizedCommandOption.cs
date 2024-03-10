@@ -1,4 +1,4 @@
-﻿// Copyright 2022 Carl Reinke
+﻿// Copyright 2024 Carl Reinke
 //
 // This file is part of a library that is licensed under the terms of the GNU
 // Lesser General Public License Version 3 as published by the Free Software
@@ -44,5 +44,10 @@ namespace Tetractic.CommandLine
         /// </summary>
         /// <value>The name of the command option parameter.</value>
         public string ParameterName { get; }
+
+        /// <summary>
+        /// Gets or sets the provider of completions for the parameter value.
+        /// </summary>
+        public ICompletionProvider? ParameterCompletionProvider { get; set; }
     }
 }
