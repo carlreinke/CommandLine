@@ -2,3 +2,5 @@
 Tetractic.CommandLine.Command.AddVariadicOption(char? shortName, string? longName, string! description, bool inherited = false) -> Tetractic.CommandLine.VariadicCommandOption!
 Tetractic.CommandLine.RootCommand.Reset() -> void
 Tetractic.CommandLine.VariadicCommandOption
+Tetractic.CommandLine.VariadicCommandOption<T>.ValueList.ToArray() -> T[]!
+Tetractic.CommandLine.VariadicCommandParameter<T>.ValueList.ToArray() -> T[]!

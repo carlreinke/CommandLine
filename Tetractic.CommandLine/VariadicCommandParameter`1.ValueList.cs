@@ -70,6 +70,12 @@ namespace Tetractic.CommandLine
                 return _values.GetEnumerator();
             }
 
+            /// <summary>
+            /// Returns an array containing the values.
+            /// </summary>
+            /// <returns>An array containing the values.</returns>
+            public T[] ToArray() => _values.ToArray();
+
             /// <inheritdoc cref="GetEnumerator"/>
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
